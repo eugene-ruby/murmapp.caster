@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option go_package = "murmapp.caster/proto;casterpb";
+
+message SendMessageRequest {
+  string bot_api_key = 1;
+  string api_endpoint = 2;
+  bytes raw_body = 3;
+}

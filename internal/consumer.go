@@ -52,12 +52,15 @@ func StartConsumer(rabbitURL, telegramAPI string) error {
     }
 
     go func() {
-        for d := range msgs {
-            log.Printf("Message received: %d size", len(d.Body))
-            go handleMessage(d.Body, telegramAPI)
-        }
+    for d := range msgs {
+        log.Printf(
+            "📩 Message received | queue: %s | routing_key: %s | size: %d bytes",
+            q.Name, d.RoutingKey, len(d.Body),
+        )
+        go handleMessage(d.Body, telegramAPI)
+    }
     }()
 
-    log.Println("caster is running...")
+    log.Println("🗣️ caster is running...")
     select {} // block forever
 }

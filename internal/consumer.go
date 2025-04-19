@@ -16,9 +16,9 @@ func StartConsumer(rabbitURL, telegramAPI string) error {
         return err
     }
 
-    // Объявляем exchange (на всякий случай)
+    // declare the exchange (just in case)
     err = ch.ExchangeDeclare(
-        "murmapp.messages.out", // name
+        "murmapp", // name
         "topic",                // type
         true,                   // durable
         false,                  // auto-deleted
@@ -30,17 +30,17 @@ func StartConsumer(rabbitURL, telegramAPI string) error {
         return err
     }
 
-    // Объявляем очередь
+    // declare the queue
     q, err := ch.QueueDeclare(
-        "caster_telegram_send", true, false, false, false, nil,
+        "murmapp.caster.telegram.messages.out", true, false, false, false, nil,
     )
     if err != nil {
         return err
     }
 
-    // Биндим по routing_key
+    // bind by routing_key
     err = ch.QueueBind(
-        q.Name, "telegram.send", "murmapp.messages.out", false, nil,
+        q.Name, "telegram.messages.out", "murmapp", false, nil,
     )
     if err != nil {
         return err

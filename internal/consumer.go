@@ -53,6 +53,7 @@ func StartConsumer(rabbitURL, telegramAPI string) error {
 
     go func() {
         for d := range msgs {
+            log.Printf("Message received: %d size", len(d.Body))
             go handleMessage(d.Body, telegramAPI)
         }
     }()

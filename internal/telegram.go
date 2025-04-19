@@ -4,6 +4,7 @@ import (
     "bytes"
     "log"
     "net/http"
+    "fmt"
 
     "google.golang.org/protobuf/proto"
     "murmapp.caster/proto"
@@ -16,14 +17,14 @@ func handleMessage(body []byte, apiBase string) {
         return
     }
 
-    url := apiBase + "/" + req.ApiEndpoint
+    url := fmt.Sprintf("%s/bot%s/%s", apiBase, req.BotApiKey, req.ApiEndpoint)
+
     httpReq, err := http.NewRequest("POST", url, bytes.NewReader(req.RawBody))
     if err != nil {
         log.Printf("failed to create request: %v", err)
         return
     }
 
-    httpReq.Header.Set("Authorization", "Bearer "+req.BotApiKey)
     httpReq.Header.Set("Content-Type", "application/json")
 
     resp, err := http.DefaultClient.Do(httpReq)

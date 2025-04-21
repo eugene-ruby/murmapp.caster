@@ -5,21 +5,38 @@ import (
     "log"
     "net/http"
     "fmt"
+	"encoding/json"
 
     "google.golang.org/protobuf/proto"
     "murmapp.caster/proto"
 )
 
-func handleMessage(body []byte, apiBase string) {
+func hendlerMessageOut(body []byte, apiBase string) {
 	var req casterpb.SendMessageRequest
 	if err := proto.Unmarshal(body, &req); err != nil {
 		log.Printf("❌ Failed to decode proto: %v", err)
 		return
 	}
 
-	url := fmt.Sprintf("%s/bot%s/%s", apiBase, req.BotApiKey, req.ApiEndpoint)
+	decryptApiKey, err := DecryptWithKey(req.EncryptedApiKeyBot, SecretBotEncryptionKey)
+	if err != nil {
+		log.Printf("[caster] ❌ failed to decrypt bot api key: %v", err)
+		return
+	}
 
-	httpReq, err := http.NewRequest("POST", url, bytes.NewReader(req.RawBody))
+	decryptPayload, err := DecryptWithKey(req.EncryptedPayload, PayloadEncryptionKey)
+	if err != nil {
+		log.Printf("[caster] ❌ failed to decrypt bot api key: %v", err)
+		return
+	}
+	if !json.Valid([]byte(decryptPayload)) {
+		log.Printf("⚠️ Decrypted payload is not valid JSON!")
+		return
+	}
+
+	url := fmt.Sprintf("%s/bot%s/%s", apiBase, decryptApiKey, req.ApiEndpoint)
+
+	httpReq, err := http.NewRequest("POST", url, bytes.NewReader([]byte(decryptPayload)))
 	if err != nil {
 		log.Printf("🚫 Failed to create HTTP request: %v", err)
 		return

@@ -22,12 +22,12 @@ const (
 )
 
 type SendMessageRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	BotApiKey     string                 `protobuf:"bytes,1,opt,name=bot_api_key,json=botApiKey,proto3" json:"bot_api_key,omitempty"`
-	ApiEndpoint   string                 `protobuf:"bytes,2,opt,name=api_endpoint,json=apiEndpoint,proto3" json:"api_endpoint,omitempty"`
-	RawBody       []byte                 `protobuf:"bytes,3,opt,name=raw_body,json=rawBody,proto3" json:"raw_body,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	EncryptedApiKeyBot []byte                 `protobuf:"bytes,1,opt,name=encrypted_api_key_bot,json=encryptedApiKeyBot,proto3" json:"encrypted_api_key_bot,omitempty"`
+	ApiEndpoint        string                 `protobuf:"bytes,2,opt,name=api_endpoint,json=apiEndpoint,proto3" json:"api_endpoint,omitempty"`
+	EncryptedPayload   []byte                 `protobuf:"bytes,3,opt,name=encrypted_payload,json=encryptedPayload,proto3" json:"encrypted_payload,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *SendMessageRequest) Reset() {
@@ -60,11 +60,11 @@ func (*SendMessageRequest) Descriptor() ([]byte, []int) {
 	return file_proto_send_message_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *SendMessageRequest) GetBotApiKey() string {
+func (x *SendMessageRequest) GetEncryptedApiKeyBot() []byte {
 	if x != nil {
-		return x.BotApiKey
+		return x.EncryptedApiKeyBot
 	}
-	return ""
+	return nil
 }
 
 func (x *SendMessageRequest) GetApiEndpoint() string {
@@ -74,9 +74,9 @@ func (x *SendMessageRequest) GetApiEndpoint() string {
 	return ""
 }
 
-func (x *SendMessageRequest) GetRawBody() []byte {
+func (x *SendMessageRequest) GetEncryptedPayload() []byte {
 	if x != nil {
-		return x.RawBody
+		return x.EncryptedPayload
 	}
 	return nil
 }
@@ -85,11 +85,11 @@ var File_proto_send_message_proto protoreflect.FileDescriptor
 
 const file_proto_send_message_proto_rawDesc = "" +
 	"\n" +
-	"\x18proto/send_message.proto\"r\n" +
-	"\x12SendMessageRequest\x12\x1e\n" +
-	"\vbot_api_key\x18\x01 \x01(\tR\tbotApiKey\x12!\n" +
-	"\fapi_endpoint\x18\x02 \x01(\tR\vapiEndpoint\x12\x19\n" +
-	"\braw_body\x18\x03 \x01(\fR\arawBodyB\x1fZ\x1dmurmapp.caster/proto;casterpbb\x06proto3"
+	"\x18proto/send_message.proto\x12\x06caster\"\x97\x01\n" +
+	"\x12SendMessageRequest\x121\n" +
+	"\x15encrypted_api_key_bot\x18\x01 \x01(\fR\x12encryptedApiKeyBot\x12!\n" +
+	"\fapi_endpoint\x18\x02 \x01(\tR\vapiEndpoint\x12+\n" +
+	"\x11encrypted_payload\x18\x03 \x01(\fR\x10encryptedPayloadB\x1fZ\x1dmurmapp.caster/proto;casterpbb\x06proto3"
 
 var (
 	file_proto_send_message_proto_rawDescOnce sync.Once
@@ -105,7 +105,7 @@ func file_proto_send_message_proto_rawDescGZIP() []byte {
 
 var file_proto_send_message_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_proto_send_message_proto_goTypes = []any{
-	(*SendMessageRequest)(nil), // 0: SendMessageRequest
+	(*SendMessageRequest)(nil), // 0: caster.SendMessageRequest
 }
 var file_proto_send_message_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type

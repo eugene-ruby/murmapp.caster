@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package caster;
+
+option go_package = "murmapp.caster/proto;casterpb";
+
+message RegisterWebhookRequest {
+  string bot_id = 1;
+  bytes api_key_bot = 2;
+}
+
+message RegisterWebhookResponse {
+  string bot_id = 1;
+  bytes encrypted_api_key_bot = 2;
+  string webhook_id = 3;
+}

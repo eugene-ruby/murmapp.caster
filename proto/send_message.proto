@@ -5,7 +5,7 @@ package caster;
 option go_package = "murmapp.caster/proto;casterpb";
 
 message SendMessageRequest {
-  string bot_api_key = 1;
+  bytes encrypted_api_key_bot = 1;
   string api_endpoint = 2;
-  bytes raw_body = 3;
+  bytes encrypted_payload = 3;
 }

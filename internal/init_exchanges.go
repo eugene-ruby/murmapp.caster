@@ -1,13 +1,13 @@
 package internal
 
 import (
-	"github.com/streadway/amqp"
 	"log"
 )
 
 // InitExchanges declares all topic exchanges used by the system
-func InitExchanges(ch *amqp.Channel) error {
+func InitExchanges(mq *MQPublisher) error {
     // declare the exchange (just in case)
+	ch := mq.ch
     exchange := "murmapp"
 
 	err := ch.ExchangeDeclare(

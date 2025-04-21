@@ -11,7 +11,7 @@ import (
     "murmapp.caster/proto"
 )
 
-func hendlerMessageOut(body []byte, apiBase string) {
+var  HendlerMessageOut = func(body []byte, apiBase string) {
 	var req casterpb.SendMessageRequest
 	if err := proto.Unmarshal(body, &req); err != nil {
 		log.Printf("❌ Failed to decode proto: %v", err)

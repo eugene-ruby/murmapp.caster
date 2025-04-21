@@ -4,18 +4,17 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"encoding/base64"
-	"os"
 	"fmt"
 	"io"
+	"os"
 )
 
-var SecretIDEncryptionKey []byte // for encryption telegram_id, know hook and caster
-var SecretBotEncryptionKey []byte // for encryption bot_api_key, know only caster 
-var PayloadEncryptionKey []byte // for encryption payload of message, know hook, caster, core
+var SecretIDEncryptionKey []byte  // for encryption telegram_id, know hook and caster
+var SecretBotEncryptionKey []byte // for encryption bot_api_key, know only caster
+var PayloadEncryptionKey []byte   // for encryption payload of message, know hook, caster, core
 
 func InitEncryptionKey() error {
-   payloadKey := os.Getenv("ENCRYPTION_KEY")
+	payloadKey := os.Getenv("ENCRYPTION_KEY")
 	if payloadKey == "" || len(payloadKey) != 32 {
 		return fmt.Errorf("ENCRYPTION_KEY must be 32 bytes")
 	}
@@ -36,7 +35,7 @@ func InitEncryptionKey() error {
 	return nil
 }
 
-func EncryptWithKeyBytes(plain []byte, key []byte) ([]byte, error) {
+func EncryptWithKey(plain []byte, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -51,23 +50,6 @@ func EncryptWithKeyBytes(plain []byte, key []byte) ([]byte, error) {
 	}
 	ciphertext := gcm.Seal(nonce, nonce, plain, nil)
 	return ciphertext, nil
-}
-
-func EncryptWithKey(plain string, key []byte) (string, error) {
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return "", err
-	}
-	gcm, err := cipher.NewGCM(block)
-	if err != nil {
-		return "", err
-	}
-	nonce := make([]byte, gcm.NonceSize())
-	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		return "", err
-	}
-	ciphertext := gcm.Seal(nonce, nonce, []byte(plain), nil)
-	return base64.URLEncoding.EncodeToString(ciphertext), nil
 }
 
 func DecryptWithKey(ciphertext []byte, key []byte) (string, error) {

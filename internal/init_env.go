@@ -1,8 +1,6 @@
 package internal
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
 	"os"
 	"fmt"
 )

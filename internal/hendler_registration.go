@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/streadway/amqp"
 	"google.golang.org/protobuf/proto"
 	casterpb "murmapp.caster/proto"
 )
 
-func hendlerRegistration(body []byte, ch *amqp.Channel) {
+var HendlerRegistration = func(body []byte, mq Publisher) {
 	var req casterpb.RegisterWebhookRequest
 	if err := proto.Unmarshal(body, &req); err != nil {
 		log.Printf("[registrations] ❌ failed to unmarshal protobuf: %v", err)
@@ -33,14 +32,14 @@ func hendlerRegistration(body []byte, ch *amqp.Channel) {
 		return
 	}
 
-	if err := registeredPush(req.BotId, webhookID, decryptApiKey, ch); err != nil {	
+	if err := registeredPush(req.BotId, webhookID, decryptApiKey, mq); err != nil {
 		log.Printf("[caster] ❌ failed to push registered bot: %v", err)
 		return
 	}
 }
 
-func registeredPush(botID, webhookID, decryptApiKey string, ch *amqp.Channel) error {
-	encryptedApiKeyBot, err := EncryptWithKeyBytes([]byte(decryptApiKey), SecretBotEncryptionKey)
+func registeredPush(botID, webhookID, decryptApiKey string, mq Publisher) error {
+	encryptedApiKeyBot, err := EncryptWithKey([]byte(decryptApiKey), SecretBotEncryptionKey)
 	if err != nil {
 		log.Printf("[caster] ❌ encryption failed: %v", err)
 		return err
@@ -58,10 +57,10 @@ func registeredPush(botID, webhookID, decryptApiKey string, ch *amqp.Channel) er
 		return err
 	}
 
-	err = ch.Publish("murmapp", "webhook.registered", false, false, amqp.Publishing{
-		ContentType: "application/protobuf",
-		Body:        body,
-	})
+	if err := mq.Publish("murmapp", "webhook.registered", body); err != nil {
+		log.Printf("[caster] ❌ failed to publish to MQ: %v", err)
+		return err
+	}
 
 	if err != nil {
 		log.Printf("[registrations] ❌ publish error: %v", err)

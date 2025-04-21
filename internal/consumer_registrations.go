@@ -6,7 +6,8 @@ import (
 	"github.com/streadway/amqp"
 )
 
-func StartRegistrationConsumer(ch *amqp.Channel) error {
+func StartRegistrationConsumer(mq *MQPublisher) error {
+	ch := mq.ch
 	q, err := ch.QueueDeclare("murmapp.caster.webhook.registration", true, false, false, false, nil)
 	if err != nil {
 		return err
@@ -21,16 +22,15 @@ func StartRegistrationConsumer(ch *amqp.Channel) error {
 		return err
 	}
 
-    go func() {
-    for d := range msgs {
-        log.Printf(
-            "📩 Message received | queue: %s | routing_key: %s | size: %d bytes",
-            q.Name, d.RoutingKey, len(d.Body),
-        )
-        go hendlerRegistration(d.Body, ch)
-    }
-    }()
+    go HandleRegistrationMessages(msgs, mq, q.Name)
 
 	log.Println("[caster.registrations] 📖 consumer started and listening...")
     select {}
+}
+
+func HandleRegistrationMessages(deliveries <-chan amqp.Delivery, mq Publisher, queueName string) {
+	for d := range deliveries {
+		log.Printf("📩 Message received | queue: %s | routing_key: %s | size: %d bytes", queueName, d.RoutingKey, len(d.Body))
+		go HendlerRegistration(d.Body, mq)
+	}
 }

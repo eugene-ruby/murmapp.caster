@@ -1,17 +1,17 @@
 package internal
 
 import (
-    "bytes"
-    "log"
-    "net/http"
-    "fmt"
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
 
-    "google.golang.org/protobuf/proto"
-    "murmapp.caster/proto"
+	"google.golang.org/protobuf/proto"
+	casterpb "murmapp.caster/proto"
 )
 
-var  HendlerMessageOut = func(body []byte, apiBase string) {
+var HandlerMessageOut = func(body []byte, apiBase string) {
 	var req casterpb.SendMessageRequest
 	if err := proto.Unmarshal(body, &req); err != nil {
 		log.Printf("❌ Failed to decode proto: %v", err)

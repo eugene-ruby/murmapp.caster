@@ -1,18 +1,18 @@
 package internal
 
 import (
-	"testing"
-	"os"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"testing"
 
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 	casterpb "murmapp.caster/proto"
 )
 
-func TestHendlerMessageOut_ValidPayload(t *testing.T) {
+func TestHandlerMessageOut_ValidPayload(t *testing.T) {
 	// Set up required encryption keys as environment variables
 	_ = os.Setenv("ENCRYPTION_KEY", "01234567890123456789012345678901")
 	_ = os.Setenv("TELEGRAM_ID_ENCRYPTION_KEY", "12345678901234567890123456789012")
@@ -58,7 +58,7 @@ func TestHendlerMessageOut_ValidPayload(t *testing.T) {
 	require.NoError(t, err)
 
 	// Execute the message handler which simulates processing a message from the queue
-	HendlerMessageOut(data, ts.URL)
+	HandlerMessageOut(data, ts.URL)
 
 	// Validate that the resulting API request matches expected URL and body
 	require.Equal(t, "/bot123456:ABC-DEF/sendMessage", capturedURL)

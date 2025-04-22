@@ -1,16 +1,15 @@
 package internal
 
 import (
-	
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"fmt"
-	"io"
-	"encoding/json"
 	"strings"
 	"testing"
-	
+
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
@@ -53,7 +52,7 @@ func (m *MockChannel) Close() error {
 	return nil
 }
 
-func TestHendlerRegistration_ValidPayload(t *testing.T) {
+func TestHandlerRegistration_ValidPayload(t *testing.T) {
 	// Set up required encryption keys as environment variables
 	_ = os.Setenv("ENCRYPTION_KEY", "01234567890123456789012345678901")
 	_ = os.Setenv("TELEGRAM_ID_ENCRYPTION_KEY", "12345678901234567890123456789012")
@@ -106,7 +105,7 @@ func TestHendlerRegistration_ValidPayload(t *testing.T) {
 	mq := &MQPublisher{}
 	mq.SetChannel(mockCh)
 
-	HendlerRegistration(data, mq)
+	HandlerRegistration(data, mq)
 
 	// Validate that the resulting API request matches expected URL and body
 	require.Equal(t, "/bot123456:ABC-DEF/setWebhook", capturedURL)

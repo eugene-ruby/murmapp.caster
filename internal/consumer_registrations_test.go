@@ -1,8 +1,8 @@
 package internal
 
 import (
-	"testing"
 	"sync"
+	"testing"
 
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/require"
@@ -22,13 +22,13 @@ func TestHandleRegistrationMessages_CallsHandler(t *testing.T) {
 	msgChan <- mockMsg
 	close(msgChan)
 
-	originalHandler := HendlerRegistration
-	defer func() { HendlerRegistration = originalHandler }()
+	originalHandler := HandlerRegistration
+	defer func() { HandlerRegistration = originalHandler }()
 
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	HendlerRegistration = func(body []byte, mq *MQPublisher) {
+	HandlerRegistration = func(body []byte, mq *MQPublisher) {
 		defer wg.Done()
 		called = true
 		require.Equal(t, []byte("test-body"), body)

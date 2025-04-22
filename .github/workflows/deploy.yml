@@ -15,6 +15,12 @@ jobs:
       SSH_KEY: ${{ secrets.SSH_KEY }}
       TELEGRAM_API_URL: ${{ secrets.TELEGRAM_API_URL }}
       RABBITMQ_URL: ${{ secrets.RABBITMQ_URL }}
+      SECRET_SALT: ${{ secrets.SECRET_SALT }}
+      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+      BOT_ENCRYPTION_KEY: ${{ secrets.BOT_ENCRYPTION_KEY }}
+      TELEGRAM_ID_ENCRYPTION_KEY: ${{ secrets.TELEGRAM_ID_ENCRYPTION_KEY }}
+      WEB_HOOK_HOST: ${{ secrets.WEB_HOOK_HOST }}
+      APP_PORT: ${{ secrets.APP_PORT }}
 
     steps:
       - name: Checkout code
@@ -43,11 +49,19 @@ jobs:
           host: ${{ env.SSH_HOST }}
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
-          envs: TELEGRAM_API_URL,RABBITMQ_URL
+          envs: SECRET_SALT,TELEGRAM_API_URL,RABBITMQ_URL,WEB_HOOK_HOST,APP_PORT,BOT_ENCRYPTION_KEY,TELEGRAM_ID_ENCRYPTION_KEY,ENCRYPTION_KEY
           script: |
             cd ~/murmapp/murmapp.caster
 
-            echo "TELEGRAM_API_URL=$TELEGRAM_API_URL" > .env
-            echo "RABBITMQ_URL=$RABBITMQ_URL" >> .env
+            cat <<EOF > .env
+            SECRET_SALT=$SECRET_SALT
+            TELEGRAM_API_URL=$TELEGRAM_API_URL
+            BOT_ENCRYPTION_KEY=$BOT_ENCRYPTION_KEY
+            ENCRYPTION_KEY=$ENCRYPTION_KEY
+            TELEGRAM_ID_ENCRYPTION_KEY=$TELEGRAM_ID_ENCRYPTION_KEY
+            RABBITMQ_URL=$RABBITMQ_URL
+            WEB_HOOK_HOST=$WEB_HOOK_HOST
+            APP_PORT=$APP_PORT
+            EOF
 
             sudo systemctl restart murmapp-caster.service

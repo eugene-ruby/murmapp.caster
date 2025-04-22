@@ -1,23 +1,23 @@
 package internal
 
 import (
-	"testing"
 	"sync"
+	"testing"
 
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/require"
 )
 
-func TestHendlerMsgOut_CallsHandler(t *testing.T) {
+func TestHandlerMsgOut_CallsHandler(t *testing.T) {
 	var called bool
 	var wg sync.WaitGroup
 	wg.Add(1)
 
 	// mock handler
-	originalHandler := HendlerMessageOut
-	defer func() { HendlerMessageOut = originalHandler }()
+	originalHandler := HandlerMessageOut
+	defer func() { HandlerMessageOut = originalHandler }()
 
-	HendlerMessageOut = func(body []byte, apiBase string) {
+	HandlerMessageOut = func(body []byte, apiBase string) {
 		defer wg.Done()
 		called = true
 		require.Equal(t, []byte("test-msg-out"), body)
@@ -36,7 +36,7 @@ func TestHendlerMsgOut_CallsHandler(t *testing.T) {
 	close(msgChan)
 
 	// run handler
-	HendlerMsgOut(msgChan, "test-queue")
+	HandlerMsgOut(msgChan, "test-queue")
 	wg.Wait()
 
 	require.True(t, called, "expected handler to be called")

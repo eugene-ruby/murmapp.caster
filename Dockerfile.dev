@@ -13,7 +13,7 @@ WORKDIR /app
 COPY . .
 
 # Generate protobuf files
-RUN protoc --go_out=. --go_opt=paths=source_relative proto/send_message.proto proto/registration.proto
+RUN protoc --go_out=. --go_opt=paths=source_relative proto/*.proto
 
 # Build binary
 RUN go build -o app ./cmd/main.go

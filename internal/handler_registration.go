@@ -8,7 +8,7 @@ import (
 	casterpb "murmapp.caster/proto"
 )
 
-var HendlerRegistration = func(body []byte, mq *MQPublisher) {
+var HandlerRegistration = func(body []byte, mq *MQPublisher) {
 	var req casterpb.RegisterWebhookRequest
 	if err := proto.Unmarshal(body, &req); err != nil {
 		log.Printf("[registrations] ❌ failed to unmarshal protobuf: %v", err)

@@ -1,77 +1,66 @@
 package internal_test
 
 import (
-	"os"
 	"testing"
 
+	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/require"
 	"murmapp.caster/internal"
 )
 
-// MockAMQPChannel mocks the amqp.Channel
-type MockAMQPChannel struct {
-	PublishedExchange   string
-	PublishedRoutingKey string
-	PublishedBody       []byte
+// MockCh implements the internal.Channel interface for testing
+type MockCh struct {
+	ExchangeDeclared bool
+	Published        bool
+	Closed           bool
 }
 
-func (m *MockAMQPChannel) Publish(exchange, routingKey string, mandatory, immediate bool, msg interface{}) error {
-	publishing := msg.(struct {
-		ContentType string
-		Body        []byte
-	})
-	m.PublishedExchange = exchange
-	m.PublishedRoutingKey = routingKey
-	m.PublishedBody = publishing.Body
+func (m *MockCh) ExchangeDeclare(name, kind string, durable, autoDelete, internalFlag, noWait bool, args amqp.Table) error {
+	m.ExchangeDeclared = true
 	return nil
 }
 
-// MockPublisher implements internal.Publisher using the mock channel
-type MockPublisher struct {
-	Channel *MockAMQPChannel
+func (m *MockCh) Publish(exchange, routingKey string, body []byte) error {
+	m.Published = true
+	return nil
 }
 
-func (m *MockPublisher) Publish(exchange, routingKey string, body []byte) error {
-	return m.Channel.Publish(exchange, routingKey, false, false, struct {
-		ContentType string
-		Body        []byte
-	}{
-		ContentType: "application/octet-stream",
-		Body:        body,
-	})
+func (m *MockCh) QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (amqp.Queue, error) {
+	return amqp.Queue{Name: name}, nil
 }
 
-func TestMockPublisher_Publish(t *testing.T) {
-	mockChannel := &MockAMQPChannel{}
-	publisher := &MockPublisher{Channel: mockChannel}
+func (m *MockCh) QueueBind(name, key, exchange string, noWait bool, args amqp.Table) error {
+	return nil
+}
 
-	err := publisher.Publish("murmapp", "test.key", []byte("hello"))
+func (m *MockCh) Consume(queue, consumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) (<-chan amqp.Delivery, error) {
+	ch := make(chan amqp.Delivery)
+	close(ch)
+	return ch, nil
+}
+
+func (m *MockCh) Close() error {
+	m.Closed = true
+	return nil
+}
+
+func TestMQPublisher_PublishAndClose(t *testing.T) {
+	mock := &MockCh{}
+	mq := &internal.MQPublisher{}
+	mq.SetChannel(mock)
+
+	err := mq.Publish("murmapp", "some.key", []byte("hello"))
 	require.NoError(t, err)
+	require.True(t, mock.Published)
 
-	require.Equal(t, "murmapp", mockChannel.PublishedExchange)
-	require.Equal(t, "test.key", mockChannel.PublishedRoutingKey)
-	require.Equal(t, []byte("hello"), mockChannel.PublishedBody)
+	err = mq.Close()
+	require.NoError(t, err)
+	require.True(t, mock.Closed)
 }
 
-func TestInitMQ_Success(t *testing.T) {
-	_ = os.Setenv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672")
-
-	mq, err := internal.InitMQ()
-	require.NoError(t, err)
-	require.NotNil(t, mq)
-	defer mq.Close()
-
-	ch := mq.GetChannel()
+func TestWrapAMQPChannel_ImplementsAll(t *testing.T) {
+	// Этот тест проверяет, что WrapAMQPChannel возвращает объект,
+	// который реализует интерфейс internal.Channel без ошибок (компиляция = успех)
+	var ch internal.Channel = internal.WrapAMQPChannel(&amqp.Channel{})
 	require.NotNil(t, ch)
-}
-
-func TestPublish_Success(t *testing.T) {
-	_ = os.Setenv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672")
-
-	mq, err := internal.InitMQ()
-	require.NoError(t, err)
-	defer mq.Close()
-
-	err = mq.Publish("amq.direct", "test.publish", []byte("test message"))
-	require.NoError(t, err)
 }

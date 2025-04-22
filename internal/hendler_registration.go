@@ -8,7 +8,7 @@ import (
 	casterpb "murmapp.caster/proto"
 )
 
-var HendlerRegistration = func(body []byte, mq Publisher) {
+var HendlerRegistration = func(body []byte, mq *MQPublisher) {
 	var req casterpb.RegisterWebhookRequest
 	if err := proto.Unmarshal(body, &req); err != nil {
 		log.Printf("[registrations] ❌ failed to unmarshal protobuf: %v", err)
@@ -38,7 +38,7 @@ var HendlerRegistration = func(body []byte, mq Publisher) {
 	}
 }
 
-func registeredPush(botID, webhookID, decryptApiKey string, mq Publisher) error {
+func registeredPush(botID, webhookID, decryptApiKey string, mq *MQPublisher) error {
 	encryptedApiKeyBot, err := EncryptWithKey([]byte(decryptApiKey), SecretBotEncryptionKey)
 	if err != nil {
 		log.Printf("[caster] ❌ encryption failed: %v", err)

@@ -36,7 +36,7 @@ func TestHendlerMsgOut_CallsHandler(t *testing.T) {
 	close(msgChan)
 
 	// run handler
-	HendlerMsgOut(msgChan, nil, "test-queue")
+	HendlerMsgOut(msgChan, "test-queue")
 	wg.Wait()
 
 	require.True(t, called, "expected handler to be called")

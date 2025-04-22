@@ -10,13 +10,14 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
-
+	
+	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 	casterpb "murmapp.caster/proto"
 )
 
-type MockPublisher struct {
+type MockChannel struct {
 	Called             bool
 	LastExchange       string
 	LastRoutingKey     string
@@ -24,15 +25,31 @@ type MockPublisher struct {
 	PublishShouldError bool
 }
 
-func (m *MockPublisher) Publish(exchange, routingKey string, body []byte) error {
+func (m *MockChannel) Publish(exchange, routingKey string, body []byte) error {
 	m.Called = true
 	m.LastExchange = exchange
 	m.LastRoutingKey = routingKey
 	m.LastBody = body
-
 	if m.PublishShouldError {
 		return fmt.Errorf("mock publish failed")
 	}
+	return nil
+}
+
+// Stub methods
+func (m *MockChannel) ExchangeDeclare(string, string, bool, bool, bool, bool, amqp.Table) error {
+	return nil
+}
+func (m *MockChannel) QueueDeclare(string, bool, bool, bool, bool, amqp.Table) (amqp.Queue, error) {
+	return amqp.Queue{}, nil
+}
+func (m *MockChannel) QueueBind(string, string, string, bool, amqp.Table) error {
+	return nil
+}
+func (m *MockChannel) Consume(string, string, bool, bool, bool, bool, amqp.Table) (<-chan amqp.Delivery, error) {
+	return nil, nil
+}
+func (m *MockChannel) Close() error {
 	return nil
 }
 
@@ -85,22 +102,24 @@ func TestHendlerRegistration_ValidPayload(t *testing.T) {
 	data, err := proto.Marshal(req)
 	require.NoError(t, err)
 
-	mockMQ := &MockPublisher{}
-	// Execute the message handler which simulates processing a message from the queue
-	HendlerRegistration(data, mockMQ)
+	mockCh := &MockChannel{}
+	mq := &MQPublisher{}
+	mq.SetChannel(mockCh)
+
+	HendlerRegistration(data, mq)
 
 	// Validate that the resulting API request matches expected URL and body
 	require.Equal(t, "/bot123456:ABC-DEF/setWebhook", capturedURL)
 	// ✅ Ensures the request was sent to the correct Telegram endpoint using decrypted API key
 
 	require.NoError(t, err)
-	require.True(t, mockMQ.Called)
-	require.Equal(t, "murmapp", mockMQ.LastExchange)
-	require.Equal(t, "webhook.registered", mockMQ.LastRoutingKey)
+	require.True(t, mockCh.Called)
+	require.Equal(t, "murmapp", mockCh.LastExchange)
+	require.Equal(t, "webhook.registered", mockCh.LastRoutingKey)
 	// ✅ Confirms that a message was published to the correct exchange and routing key
 
 	var resp casterpb.RegisterWebhookResponse
-	err = proto.Unmarshal(mockMQ.LastBody, &resp)
+	err = proto.Unmarshal(mockCh.LastBody, &resp)
 	require.NoError(t, err)
 	require.Equal(t, botID, resp.BotId)
 	// ✅ Validates that the pushed protobuf contains the correct bot ID

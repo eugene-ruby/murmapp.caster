@@ -28,7 +28,7 @@ func StartRegistrationConsumer(mq *MQPublisher) error {
     select {}
 }
 
-func HandleRegistrationMessages(deliveries <-chan amqp.Delivery, mq Publisher, queueName string) {
+func HandleRegistrationMessages(deliveries <-chan amqp.Delivery, mq *MQPublisher, queueName string) {
 	for d := range deliveries {
 		log.Printf("📩 Message received | queue: %s | routing_key: %s | size: %d bytes", queueName, d.RoutingKey, len(d.Body))
 		go HendlerRegistration(d.Body, mq)

@@ -11,7 +11,7 @@ import (
 func TestHandleRegistrationMessages_CallsHandler(t *testing.T) {
 	called := false
 
-	mockMQ := &MockPublisher{}
+	mockMQ := &MQPublisher{}
 
 	mockMsg := amqp.Delivery{
 		Body:       []byte("test-body"),
@@ -28,7 +28,7 @@ func TestHandleRegistrationMessages_CallsHandler(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	HendlerRegistration = func(body []byte, mq Publisher) {
+	HendlerRegistration = func(body []byte, mq *MQPublisher) {
 		defer wg.Done()
 		called = true
 		require.Equal(t, []byte("test-body"), body)

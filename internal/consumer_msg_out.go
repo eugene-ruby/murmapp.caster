@@ -22,13 +22,13 @@ func StartConsumerMsgOut(mq *MQPublisher, telegramAPI string) error {
 		return err
 	}
 
-    go HendlerMsgOut(msgs, mq, q.Name)
+    go HendlerMsgOut(msgs, q.Name)
 
     log.Println("🗣️ caster is running...")
     select {}
 }
 
-func HendlerMsgOut(deliveries <-chan amqp.Delivery, mq Publisher, queueName string) {
+func HendlerMsgOut(deliveries <-chan amqp.Delivery, queueName string) {
 	for d := range deliveries {
 		log.Printf("📩 Message received | queue: %s | routing_key: %s | size: %d bytes", queueName, d.RoutingKey, len(d.Body))
 		go HendlerMessageOut(d.Body, TelegramAPI)

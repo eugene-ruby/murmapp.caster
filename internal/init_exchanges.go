@@ -2,12 +2,16 @@ package internal
 
 import (
 	"log"
+	"fmt"
 )
 
 // InitExchanges declares all topic exchanges used by the system
 func InitExchanges(mq *MQPublisher) error {
     // declare the exchange (just in case)
-	ch := mq.ch
+	ch := mq.GetChannel()
+	if ch == nil {
+		return fmt.Errorf("InitExchanges: channel is nil")
+	}
     exchange := "murmapp"
 
 	err := ch.ExchangeDeclare(

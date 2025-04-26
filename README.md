@@ -51,6 +51,18 @@ This service:
 
 ---
 
+## ☁️ Infrastructure
+
+This service requires:
+
+- Redis (for AES-key caching + telegram_id recovery)
+- RabbitMQ (topic exchange `murmapp`)
+- Docker/Podman or systemd deployment
+
+> Note: Redis should be secured (password + no-disk mode).
+
+---
+
 ## 📦 Installation
 
 ```bash
@@ -171,6 +183,70 @@ Run tests with:
 ```bash
 go test ./internal
 ```
+
+---
+
+## 🔐 Roadmap: Security Hardening
+
+- [ ] Switch Go binary to mlocked memory region
+- [ ] Move to OpenBSD as host OS (pledge, malloc, swapless)
+
+
+---
+
+## 🧠 Health Consensus (Planned)
+
+As the system grows and service inter-dependencies increase, `murmapp` will adopt a **Health Consensus Model** to ensure graceful failure handling and prevent cascading errors in production.
+
+### 🔍 Motivation
+
+In a distributed system, if one critical service (e.g. `caster`) becomes temporarily unavailable, dependent services (e.g. `hook`) may:
+
+- generate errors at high frequency
+- overload logging systems
+- cause false alarms and developer fatigue
+- fail to operate safely
+
+To address this, we propose a **health signaling layer** between services.
+
+---
+
+### 🛠 Strategy
+
+- All services periodically announce their health status (via Redis or RabbitMQ)
+- Services subscribe to these health events or probe TTL-based keys
+- If a required peer is *unhealthy or absent*, the dependent service:
+  - pauses certain operations
+  - logs minimal context (once)
+  - resumes only after peer becomes available again
+
+---
+
+### 🧪 Example: Redis TTL-based Health
+
+Each service sets a Redis key like:
+
+```plaintext
+murmapp:health:caster → \"ok\"  EX 10
+```
+
+Other services (`hook`, `core`, etc.) can check `TTL`:
+
+- if TTL > 0 → assume service is healthy
+- if TTL expired or key missing → consider peer unavailable
+
+---
+
+### ✅ Benefits
+
+- Prevents **error avalanche** when a dependency fails
+- Reduces **noise in logs and metrics**
+- Enables **graceful degradation** and **self-healing behavior**
+- Keeps the system stable even under partial outages
+
+---
+
+This feature is **not required in the MVP** but is planned as part of the production hardening roadmap.
 
 ---
 

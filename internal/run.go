@@ -23,6 +23,9 @@ func Run() error {
 	if err := InitEnv(); err != nil {
 		return fmt.Errorf("env init failed: %w", err)
 	}
+	if err := InitPrivateRSA(); err != nil {
+		return fmt.Errorf("encryption rsa key init failed: %w", err)
+	}
 
 	mq, err := InitMQFunc()
 	if err != nil {

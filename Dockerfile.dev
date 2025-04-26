@@ -16,7 +16,9 @@ COPY . .
 RUN protoc --go_out=. --go_opt=paths=source_relative proto/*.proto
 
 # Build binary
-RUN go build -o app ./cmd/main.go
+RUN go build -ldflags "-X 'murmapp.caster/internal.MasterSecretKey=${{ENV['']}}'" \
+    -o app ./cmd/main.go
+
 
 EXPOSE 8080
 CMD ["./app"]

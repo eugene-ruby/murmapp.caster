@@ -32,7 +32,9 @@ jobs:
           go-version: '1.22'
 
       - name: Build binary
-        run: go build -o app ./cmd/main.go
+        run: |
+           go build -ldflags "-X 'murmapp.caster/internal.MasterSecretKey=${{ secrets.MASTER_SECRET_KEY }}'" \
+             -o app ./cmd/main.go
 
       - name: Upload binary to server
         uses: appleboy/scp-action@v0.1.4

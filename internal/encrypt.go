@@ -9,11 +9,19 @@ import (
 	"os"
 )
 
+
+var MasterEncryptionKey []byte 
 var SecretIDEncryptionKey []byte  // for encryption telegram_id, know hook and caster
 var SecretBotEncryptionKey []byte // for encryption bot_api_key, know only caster
 var PayloadEncryptionKey []byte   // for encryption payload of message, know hook, caster, core
 
 func InitEncryptionKey() error {
+	masterKey := os.Getenv("MASTER_SECRET_KEY")
+	if masterKey == "" || len(masterKey) < 2 {
+		return fmt.Errorf("MASTER_SECRET_KEY must be 32 bytes")
+	}
+	MasterEncryptionKey= []byte(masterKey)
+
 	payloadKey := os.Getenv("ENCRYPTION_KEY")
 	if payloadKey == "" || len(payloadKey) != 32 {
 		return fmt.Errorf("ENCRYPTION_KEY must be 32 bytes")

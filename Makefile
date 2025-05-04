@@ -7,7 +7,9 @@ MASTER_KEY_VAR := murmapp.caster/internal/config.MasterEncryptionKey
 # Run tests with injected master key via -ldflags
 test:
 	go test --timeout 10s -v ./internal/config -ldflags "-X=$(MASTER_KEY_VAR)=$(MASTER_KEY)"
-	POSTGRES_DSN=$(POSTGRES_DSN) go test --timeout 120s -v ./internal/... -ldflags "-X=$(MASTER_KEY_VAR)=$(MASTER_KEY)"
+	go test --timeout 60s -v ./internal/registration -ldflags "-X=$(MASTER_KEY_VAR)=$(MASTER_KEY)"
+	go test --timeout 60s -v ./internal/telegramout -ldflags "-X=$(MASTER_KEY_VAR)=$(MASTER_KEY)"
+	go test --timeout 60s -v ./internal/storewriter -ldflags "-X=$(MASTER_KEY_VAR)=$(MASTER_KEY)"
 
 build:
-	go build -ldflags "-X=murmapp.caster/internal/config.MasterEncryptionKey=$(MASTER_KEY)" -o casterapp ./cmd/main.go
+	go build -ldflags "-X=$(MASTER_KEY_VAR)=$(MASTER_KEY)" -o casterapp ./cmd/main.go

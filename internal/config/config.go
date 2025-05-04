@@ -25,6 +25,7 @@ type Config struct {
 	MasterKey   string
 	RabbitMQ    RabbitMQConfig
 	Redis       RedisConfig
+	PostgreSQL  PostgreConfig
 	Encryption  EncryptionConfig
 }
 
@@ -33,6 +34,9 @@ type RabbitMQConfig struct {
 }
 type RedisConfig struct {
 	URL string
+}
+type PostgreConfig struct {
+	DSN string
 }
 
 type EncryptionConfig struct {
@@ -65,6 +69,9 @@ func LoadConfig() (*Config, error) {
 		Redis: RedisConfig{
 			URL: os.Getenv("REDIS_URL"),
 		},
+		PostgreSQL: PostgreConfig{
+			DSN: os.Getenv("POSTGRES_DSN"),
+		},
 		Encryption: EncryptionConfig{
 			PayloadEncryptionKeyStr:    os.Getenv("PAYLOAD_ENCRYPTION_KEY"),
 			SecretBotEncryptionKeyStr:  os.Getenv("SECRET_BOT_ENCRYPTION_KEY"),
@@ -86,6 +93,9 @@ func LoadConfig() (*Config, error) {
 	}
 	if cfg.Redis.URL == "" {
 		return nil, fmt.Errorf("REDIS_URL environment variable must be set")
+	}
+	if cfg.PostgreSQL.DSN == "" {
+		return nil, fmt.Errorf("POSTGRES_DSN environment variable must be set")
 	}
 	if cfg.Encryption.PayloadEncryptionKeyStr == "" {
 		return nil, fmt.Errorf("PAYLOAD_ENCRYPTION_KEY environment variable must be set")

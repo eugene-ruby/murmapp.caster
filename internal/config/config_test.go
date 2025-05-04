@@ -15,6 +15,7 @@ func TestLoadConfig_Success(t *testing.T) {
 	os.Setenv("TELEGRAM_API_URL", "https://api.telegram.org")
 	os.Setenv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/")
 	os.Setenv("REDIS_URL", "localhost:6379")
+	os.Setenv("POSTGRES_DSN", "postgres://user@localhost:5432/base")
 
 	// Set the build-time injected master encryption key manually
 	masterEncryptionKey := "test-master-key"

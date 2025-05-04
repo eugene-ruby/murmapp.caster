@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: murmapp_caster_user
+          POSTGRES_PASSWORD: supersecretpassword
+          POSTGRES_DB: murmapp_caster
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      POSTGRES_DSN: postgres://murmapp_caster_user:supersecretpassword@localhost:5432/murmapp_caster?sslmode=disable
+      MASTER_KEY: test-master-key
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          until pg_isready -h localhost -U murmapp_caster_user; do sleep 1; done
+
+      - name: Init PostgreSQL schema
+        run: psql "$POSTGRES_DSN" -v ON_ERROR_STOP=1 -f setup/migrate.sql
+
+      - name: Run tests
+        run: |
+          make test

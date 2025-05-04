@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package caster;
+
+option go_package = "murmapp.caster/proto;casterpb";
+
+message TelegramIdStore {
+  string version = 1;
+  bytes encrypted_payload = 2;
+}

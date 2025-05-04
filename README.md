@@ -1,3 +1,8 @@
+```bash
+go build -ldflags "-X 'your/package.MasterEncryptionKey=your-secret-key'"
+```
+
+
 # 📨 murmapp.caster
 
 **murmapp.caster** is a secure microservice in the Murmapp ecosystem responsible for handling all communication with the **Telegram Bot API**.

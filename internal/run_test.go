@@ -6,102 +6,50 @@ import (
 	"testing"
 	"time"
 
+	"github.com/eugene-ruby/xencryptor/xsecrets"
 	"github.com/stretchr/testify/require"
-	"github.com/streadway/amqp"
 	"murmapp.caster/internal"
 )
 
-type MockChannel struct {
-	CalledExchange bool
-}
+func TestRun_HealthzOK(t *testing.T) {
+	// 🔐 Master key, такой же как передаётся через -ldflags
+	masterKey := "test-master-key"
 
-func (m *MockChannel) ExchangeDeclare(name, kind string, durable, autoDelete, internal, noWait bool, args amqp.Table) error {
-	m.CalledExchange = true
-	return nil
-}
+	// 🔐 Генерация зашифрованных ключей
+	payloadKey := "payload-key-1234567890"
+	secretKey := "secretbot-key-abcdef"
 
-func (m *MockChannel) Close() error  { return nil }
-func (m *MockChannel) QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (amqp.Queue, error) {
-	return amqp.Queue{Name: name}, nil
-}
-func (m *MockChannel) QueueBind(name, key, exchange string, noWait bool, args amqp.Table) error {
-	return nil
-}
-func (m *MockChannel) Consume(name, consumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) (<-chan amqp.Delivery, error) {
-	ch := make(chan amqp.Delivery)
-	close(ch)
-	return ch, nil
-}
-func (m *MockChannel) Publish(exchange, routingKey string, body []byte) error {
-	return nil
-}
+	// derive & encrypt
+	payloadEncKey, _ := xsecrets.EncryptBase64WithKey([]byte(payloadKey), xsecrets.DeriveKey([]byte(masterKey), "payload"))
+	secretEncKey, _ := xsecrets.EncryptBase64WithKey([]byte(secretKey), xsecrets.DeriveKey([]byte(masterKey), "bot"))
 
-func TestInitExchangesFunc_WrapsInitExchanges(t *testing.T) {
-	mq := &internal.MQPublisher{}
-	mq.SetChannel(&MockChannel{})
+	// private RSA (PEM) → зашифровать
+	pemPriv, _, _ := xsecrets.GenerateKeyPair()
+	privEncrypted, _ := xsecrets.EncryptPrivateRSA(pemPriv, masterKey, "privateKey")
 
-	err := internal.InitExchanges(mq)
+	// ✅ ENV для Run()
+	os.Setenv("APP_PORT", "3999")
+	os.Setenv("SECRET_SALT", "somesalt")
+	os.Setenv("WEB_HOOK_HOST", "https://example.com")
+	os.Setenv("TELEGRAM_API_URL", "https://api.telegram.org")
+	os.Setenv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672")
+	os.Setenv("REDIS_URL", "redis://localhost:6379")
+	os.Setenv("PAYLOAD_ENCRYPTION_KEY", payloadEncKey)
+	os.Setenv("SECRET_BOT_ENCRYPTION_KEY", secretEncKey)
+	os.Setenv("ENCRYPTED_PRIVATE_KEY", privEncrypted)
+
+	// ⏳ Стартуем Run()
+	go func() {
+		err := internal.Run()
+		require.NoError(t, err)
+	}()
+
+	// ⏲ Ждём, пока сервер поднимется
+	time.Sleep(1 * time.Second)
+
+	// ✅ Проверяем /healthz
+	resp, err := http.Get("http://localhost:3999/healthz")
 	require.NoError(t, err)
-	// require.True(t, mockCh.ExchangeDeclared)
-}
-
-func TestStartRegistrationConsumerFunc_DoesNotPanic(t *testing.T) {
-	mq := &internal.MQPublisher{}
-	mq.SetChannel(&MockChannel{})
-
-	go func() {
-		_ = internal.StartRegistrationConsumer(mq)
-	}()
-}
-
-func TestStartConsumerMsgOutFunc_DoesNotPanic(t *testing.T) {
-	mq := &internal.MQPublisher{}
-	mq.SetChannel(&MockChannel{})	
-
-	go func() {
-		_ = internal.StartConsumerMsgOut(mq, "https://api.telegram.org")
-	}()
-}
-
-func TestRun_HTTPBoots(t *testing.T) {
-	// mock InitMQ and consumers
-
-	internal.InitMQFunc = func() (*internal.MQPublisher, error) {
-		return &internal.MQPublisher{}, nil
-	}
-
-	internal.InitExchangesFunc = func(mq *internal.MQPublisher) error {
-		return nil
-	}	
-
-	internal.StartRegistrationConsumerFunc = func(mq *internal.MQPublisher) error {
-		return nil
-	}
-
-	internal.StartConsumerMsgOutFunc = func(mq *internal.MQPublisher, api string) error {
-		return nil
-	}
-
-	// Minimal env vars for InitEncryptionKey
-	_ = os.Setenv("APP_PORT", "3999")
-	_ = os.Setenv("ENCRYPTION_KEY", "01234567890123456789012345678901")
-	_ = os.Setenv("BOT_ENCRYPTION_KEY", "12345678901234567890123456789069")
-	_ = os.Setenv("TELEGRAM_ID_ENCRYPTION_KEY", "12345678901234567890123456789012")
-	_ = os.Setenv("WEB_HOOK_HOST", "https://example.com")
-	_ = os.Setenv("RABBITMQ_URL", "amqp://guest:guest@blalba.io:5672")
-
-	// Run in goroutine so we can test healthz
-	go func() {
-		_ = internal.Run()
-	}()
-
-	time.Sleep(1 * time.Second) // Give server time to start
-
-	res, err := http.Get("http://localhost:3999/healthz")
-	require.NoError(t, err)
-	defer res.Body.Close()
-	require.Equal(t, http.StatusOK, res.StatusCode)
-
-	originalInitMQ := internal.InitMQFunc
-	defer func() { internal.InitMQFunc = originalInitMQ }()
+	defer resp.Body.Close()
+	require.Equal(t, http.StatusOK, resp.StatusCode)
 }

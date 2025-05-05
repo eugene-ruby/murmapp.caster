@@ -70,8 +70,8 @@ func Test_HandleMessageOut_missing_xid_in_redis(t *testing.T) {
 
 	handler := &telegramout.OutboundHandler{
 		Config: &config.Config{
-			SecretSalt: "salt123",
 			Encryption: config.EncryptionConfig{
+				SecretSalt: []byte("salt123"),
 				PayloadEncryptionKey: payloadKey,
 				SecretBotEncryptionKey: secretBotKey,
 			},

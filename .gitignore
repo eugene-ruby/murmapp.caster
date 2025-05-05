@@ -1,6 +1,5 @@
 .idea
-.env
-.env_test
+.env*
 app
 .DS_Store
 /tmp

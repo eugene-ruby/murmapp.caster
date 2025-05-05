@@ -25,25 +25,27 @@ func TestLoadConfig_Success(t *testing.T) {
 	payloadEncryptKey, _ := xsecrets.EncryptBase64WithKey([]byte(payloadKey), payloadMasterKey)
 	os.Setenv("PAYLOAD_ENCRYPTION_KEY", payloadEncryptKey)
 
-	secretKey := "secretbotkey123456"
-	secretMasterKey := xsecrets.DeriveKey([]byte(masterEncryptionKey), "bot")
-	secretEncryptKey, _ := xsecrets.EncryptBase64WithKey([]byte(secretKey), secretMasterKey)
-	os.Setenv("SECRET_BOT_ENCRYPTION_KEY", secretEncryptKey)
+	secretSaltKey := "secretsalt123456"
+	secretMasterKey := xsecrets.DeriveKey([]byte(masterEncryptionKey), "salt")
+	secretSaltEncryptKey, _ := xsecrets.EncryptBase64WithKey([]byte(secretSaltKey), secretMasterKey)
+	os.Setenv("SECRET_SALT", secretSaltEncryptKey)
 
 	pemPrivateBytes, _, _ := xsecrets.GenerateKeyPair()
 	cipherText, _ := xsecrets.EncryptPrivateRSA(pemPrivateBytes, masterEncryptionKey, "privateKey")
 	os.Setenv("ENCRYPTED_PRIVATE_KEY", cipherText)
 
+	secretBotKey := xsecrets.DeriveKey([]byte(masterEncryptionKey), "bot")
+
 	cfg, err := LoadConfig()
 	require.NoError(t, err)
 	require.NotNil(t, cfg)
 
-	require.Equal(t, "somesupersecretsalt", cfg.SecretSalt)
 	require.Equal(t, "https://example.com", cfg.WebhookHost)
 	require.Equal(t, "https://api.telegram.org", cfg.TelegramAPI)
 	require.Equal(t, "amqp://guest:guest@localhost:5672/", cfg.RabbitMQ.URL)
 	require.Equal(t, []byte(payloadKey), cfg.Encryption.PayloadEncryptionKey)
-	require.Equal(t, []byte(secretKey), cfg.Encryption.SecretBotEncryptionKey)
+	require.Equal(t, secretBotKey, cfg.Encryption.SecretBotEncryptionKey)
+	require.Equal(t, []byte("secretsalt123456"), cfg.Encryption.SecretSalt)
 }
 
 func TestLoadConfig_MissingVariables(t *testing.T) {

@@ -87,9 +87,9 @@ func Test_HandleMessageOut_success_with_XID(t *testing.T) {
 	// 🏗 Build handler
 	handler := &telegramout.OutboundHandler{
 		Config: &config.Config{
-			SecretSalt: salt,
 			TelegramAPI: "https://api.telegram.org/bot",
 			Encryption: config.EncryptionConfig{
+				SecretSalt: []byte(salt),
 				PayloadEncryptionKey:    payloadKey,
 				PrivateRSAEncryptionKey: privKey,
 				SecretBotEncryptionKey: secretBotKey,

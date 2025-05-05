@@ -20,7 +20,7 @@ var HandleRegistration = func(body []byte, outboundHandler *OutboundHandler) {
 	webhookHost := outboundHandler.Config.WebhookHost
 	payloadEncryptionKey := outboundHandler.Config.Encryption.PayloadEncryptionKey
 	telegramAPI := outboundHandler.Config.TelegramAPI
-	secretSalt := outboundHandler.Config.SecretSalt
+	secretSalt := outboundHandler.Config.Encryption.SecretSalt
 
 	var req casterpb.RegisterWebhookRequest
 	if err := proto.Unmarshal(body, &req); err != nil {
@@ -31,7 +31,7 @@ var HandleRegistration = func(body []byte, outboundHandler *OutboundHandler) {
 	log.Printf("[registrations] 📅 received registration request for botID: %s", req.BotId)
 
 	secretToken := GenerateSecretToken()
-	webhookID := ComputeWebhookID(secretToken, secretSalt)
+	webhookID := ComputeWebhookID(secretToken, string(secretSalt))
 	webhookURL := fmt.Sprintf("%s/api/webhook/%s", webhookHost, webhookID)
 
 	// "payload"

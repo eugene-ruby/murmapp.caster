@@ -39,10 +39,10 @@ func Test_HandleRegistration_success(t *testing.T) {
 	// 🏗 Build handler
 	handler := &registration.OutboundHandler{
 		Config: &config.Config{
-			SecretSalt:  "test_salt",
 			TelegramAPI: fakeServer.URL,
 			WebhookHost: "https://example.com/webhook",
 			Encryption: config.EncryptionConfig{
+				SecretSalt: []byte("test_salt"),
 				PayloadEncryptionKey:   payloadEncryptionKey,
 				SecretBotEncryptionKey: secretBotEncryptionKey,
 			},

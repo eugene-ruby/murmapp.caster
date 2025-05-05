@@ -19,7 +19,6 @@ func MasterKeyBytes() []byte {
 // Config holds all configuration for the application.
 type Config struct {
 	AppPort     string
-	SecretSalt  string
 	WebhookHost string
 	TelegramAPI string
 	MasterKey   string
@@ -40,6 +39,9 @@ type PostgreConfig struct {
 }
 
 type EncryptionConfig struct {
+	SecretSaltStr              string
+	SecretSalt                 []byte
+	MasterKeyBytes             []byte
 	PayloadEncryptionKeyStr    string
 	SecretBotEncryptionKeyStr  string
 	PrivateRSAEncryptionKeyStr string
@@ -60,7 +62,6 @@ func LoadConfig() (*Config, error) {
 
 	cfg := &Config{
 		AppPort:     os.Getenv("APP_PORT"),
-		SecretSalt:  os.Getenv("SECRET_SALT"),
 		WebhookHost: os.Getenv("WEB_HOOK_HOST"),
 		TelegramAPI: os.Getenv("TELEGRAM_API_URL"),
 		RabbitMQ: RabbitMQConfig{
@@ -73,15 +74,13 @@ func LoadConfig() (*Config, error) {
 			DSN: os.Getenv("POSTGRES_DSN"),
 		},
 		Encryption: EncryptionConfig{
+			SecretSaltStr:              os.Getenv("SECRET_SALT"),
 			PayloadEncryptionKeyStr:    os.Getenv("PAYLOAD_ENCRYPTION_KEY"),
-			SecretBotEncryptionKeyStr:  os.Getenv("SECRET_BOT_ENCRYPTION_KEY"),
 			PrivateRSAEncryptionKeyStr: os.Getenv("ENCRYPTED_PRIVATE_KEY"),
+			SecretBotEncryptionKey: xsecrets.DeriveKey(MasterKeyBytes(), "bot"),
 		},
 	}
 
-	if cfg.SecretSalt == "" || len(cfg.SecretSalt) < 8 {
-		return nil, fmt.Errorf("SECRET_SALT environment variable must be set and at least 8 characters long")
-	}
 	if cfg.WebhookHost == "" {
 		return nil, fmt.Errorf("WEB_HOOK_HOST environment variable must be set")
 	}
@@ -97,11 +96,11 @@ func LoadConfig() (*Config, error) {
 	if cfg.PostgreSQL.DSN == "" {
 		return nil, fmt.Errorf("POSTGRES_DSN environment variable must be set")
 	}
+	if cfg.Encryption.SecretSaltStr == "" {
+		return nil, fmt.Errorf("SECRET_SALT environment variable must be set")
+	}
 	if cfg.Encryption.PayloadEncryptionKeyStr == "" {
 		return nil, fmt.Errorf("PAYLOAD_ENCRYPTION_KEY environment variable must be set")
-	}
-	if cfg.Encryption.SecretBotEncryptionKeyStr == "" {
-		return nil, fmt.Errorf("SECRET_BOT_ENCRYPTION_KEY environment variable must be set")
 	}
 	if cfg.Encryption.PrivateRSAEncryptionKeyStr == "" {
 		return nil, fmt.Errorf("ENCRYPTED_PRIVATE_KEY environment variable must be set")
@@ -113,6 +112,7 @@ func LoadConfig() (*Config, error) {
 	if MasterEncryptionKey == "" {
 		return nil, fmt.Errorf("MasterEncryptionKey must be injected at build time with -ldflags")
 	}
+	cfg.Encryption.MasterKeyBytes = MasterKeyBytes()
 
 	if err := decryptEncryptionKeys(cfg); err != nil {
 		return nil, err
@@ -133,12 +133,12 @@ func decryptEncryptionKeys(cfg *Config) error {
 	}
 	cfg.Encryption.PayloadEncryptionKey = decryptedPayloadKey
 
-	keyBot := xsecrets.DeriveKey(MasterKeyBytes(), "bot")
-	decryptedSecretBotKey, err := xsecrets.DecryptBase64WithKey(cfg.Encryption.SecretBotEncryptionKeyStr, keyBot)
+	keySalt := xsecrets.DeriveKey(MasterKeyBytes(), "salt")
+	decryptedSecretSaltKey, err := xsecrets.DecryptBase64WithKey(cfg.Encryption.SecretSaltStr, keySalt)
 	if err != nil {
-		return fmt.Errorf("failed to decrypt SECRET_BOT_ENCRYPTION_KEY: %w", err)
+		return fmt.Errorf("failed to decrypt SECRET_SALT: %w", err)
 	}
-	cfg.Encryption.SecretBotEncryptionKey = decryptedSecretBotKey
+	cfg.Encryption.SecretSalt = decryptedSecretSaltKey
 
 	return nil
 }

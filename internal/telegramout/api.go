@@ -1,18 +1,18 @@
 package telegramout
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
-	"context"
 	"strings"
 )
 
 type OutgoingTelegramRequest struct {
-	ApiKey string
-	Endpoint string
+	ApiKey      string
+	Endpoint    string
 	TelegramAPI string
-	Payload [] byte
+	Payload     []byte
 }
 
 // SendToTelegram posts a JSON payload to the specified Telegram API endpoint.

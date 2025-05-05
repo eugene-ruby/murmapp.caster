@@ -12,8 +12,8 @@ github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f h1:lO4WD4F/r
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f/go.mod h1:cuUVRXasLTGF7a8hSLbxyZXjz+1KgoB3wDUb6vlszIc=
 github.com/eugene-ruby/xconnect v0.3.3 h1:r8bPaaz8DUtBFCVeiiU9Pf94uFNOGFymDfhgc8mYDtQ=
 github.com/eugene-ruby/xconnect v0.3.3/go.mod h1:zJeGHBvpJccJkY75wrZD9djE6E8WA3VYuuMcCHqBBes=
-github.com/eugene-ruby/xencryptor v0.2.2 h1:y5a503CPJxOu92nNJCjuASYHZG7Da5SnuWFU7rDyOQ0=
-github.com/eugene-ruby/xencryptor v0.2.2/go.mod h1:FDlSGYc51GyHKe+6j270uJK5bZNNlis7Yes55ZrbLv8=
+github.com/eugene-ruby/xencryptor v0.2.3 h1:7hhwHf6YNb2F0rYFY9FW+J26nDw1RkxRenb0k3qP924=
+github.com/eugene-ruby/xencryptor v0.2.3/go.mod h1:FDlSGYc51GyHKe+6j270uJK5bZNNlis7Yes55ZrbLv8=
 github.com/go-chi/chi/v5 v5.2.1 h1:KOIHODQj58PmL80G2Eak4WdvUzjSJSm0vG72crDCqb8=
 github.com/go-chi/chi/v5 v5.2.1/go.mod h1:L2yAIGWB3H+phAw1NxKwWM+7eUH/lU8pOMm5hHcoops=
 github.com/google/go-cmp v0.5.5 h1:Khx7svrCpmxxtHBq5j2mp/xVjsi8hQMfNLvJFAlrGgU=

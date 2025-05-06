@@ -2,16 +2,12 @@ package telegramout_test
 
 import (
 	"context"
-	"encoding/base64"
-	"crypto/x509"
-	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/json"
 	"database/sql"
 	"fmt"
 	"testing"
 	"time"
-	"os"
 
 	"github.com/eugene-ruby/xconnect/redisstore"
 	"github.com/eugene-ruby/xencryptor/xsecrets"

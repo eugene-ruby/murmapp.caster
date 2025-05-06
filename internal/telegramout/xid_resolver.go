@@ -2,23 +2,22 @@ package telegramout
 
 import (
 	"context"
-	"crypto/rsa"
 	"database/sql"
 	"fmt"
 	"time"
 
 	"github.com/eugene-ruby/xconnect/redisstore"
 	"github.com/eugene-ruby/xencryptor/xsecrets"
-	casterpb "murmapp.caster/proto"
-	"google.golang.org/protobuf/proto"
 	"github.com/redis/go-redis/v9"
+	"google.golang.org/protobuf/proto"
+	casterpb "murmapp.caster/proto"
 )
 
 type XIDResolver struct {
-	Redis    *redisstore.Store
-	DB       *sql.DB
-	RSAPrivate *rsa.PrivateKey
-	TTL      time.Duration
+	Redis                   *redisstore.Store
+	DB                      *sql.DB
+	TelegramIdEncryptionKey []byte
+	TTL                     time.Duration
 }
 
 func (r *XIDResolver) Resolve(ctx context.Context, xid string) ([]byte, error) {
@@ -65,9 +64,9 @@ func (r *XIDResolver) decryptFromProto(record *casterpb.TelegramIdStore, xid str
 	if record.Version != "v1" {
 		return nil, nil
 	}
-	decrypted, err := xsecrets.RSADecryptBytes(record.EncryptedPayload, r.RSAPrivate)
+	decrypted, err := xsecrets.DecryptBytesWithKey(record.EncryptedPayload, r.TelegramIdEncryptionKey)
 	if err != nil {
-		return nil, fmt.Errorf("rsa decrypt xid[%s]: %w", xid, err)
+		return nil, fmt.Errorf("aes decrypt xid[%s]: %w", xid, err)
 	}
 	return decrypted, nil
 }

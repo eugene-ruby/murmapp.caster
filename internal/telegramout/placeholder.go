@@ -6,20 +6,22 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-	"crypto/rsa"
+	"database/sql"
 
-	"google.golang.org/protobuf/proto"
-	casterpb "murmapp.caster/proto"
-	"github.com/redis/go-redis/v9"
-	"github.com/eugene-ruby/xencryptor/xsecrets"
 	"github.com/eugene-ruby/xconnect/redisstore"
 )
 
-
 var xidPattern = regexp.MustCompile(`__XID:([a-f0-9]{64})__`)
 
+type XIDPlaceholders struct {
+	Redis                   *redisstore.Store
+	DB                      *sql.DB
+	TelegramIdEncryptionKey []byte
+	TTL                     time.Duration
+}
+
 // ReplaceXIDPlaceholders replaces all __XID:hash__ values in JSON payload with decrypted Telegram IDs.
-func ReplaceXIDPlaceholders(jsonText []byte, store *redisstore.Store, rsaKey *rsa.PrivateKey) ([]byte, error) {
+func ReplaceXIDPlaceholders(jsonText []byte, x *XIDPlaceholders) ([]byte, error) {
 	matches := xidPattern.FindAllSubmatch(jsonText, -1)
 	if len(matches) == 0 {
 		return jsonText, nil
@@ -29,30 +31,22 @@ func ReplaceXIDPlaceholders(jsonText []byte, store *redisstore.Store, rsaKey *rs
 
 	for _, match := range matches {
 		fullPlaceholder := string(match[0]) // e.g., "__XID:abc...__"
-		hash := string(match[1])            // e.g., "abc..."
+		hash_xid := string(match[1])            // e.g., "abc..."
 
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-		storeVal, err := store.Get(ctx, hash)
+		xIDResolver := &XIDResolver{
+			Redis: x.Redis,
+			DB: x.DB,
+			TelegramIdEncryptionKey: x.TelegramIdEncryptionKey,
+			TTL: x.TTL,
+		}
+		decryptedID, err := xIDResolver.Resolve(ctx, hash_xid)
 		cancel()
-		if err == redis.Nil {
+		if decryptedID == nil {
 			continue // no such key, skip
 		}
 		if err != nil {
-			return nil, fmt.Errorf("redis error for hash %s: %w", hash, err)
-		}
-
-		var record casterpb.TelegramIdStore
-		if err := proto.Unmarshal([]byte(storeVal), &record); err != nil {
-			return nil, fmt.Errorf("❌ Failed to decode proto: redis[%s] failed: %w", hash, err)
-		}
-
-		if record.Version != "v1" {
-			continue // unsupported version, skip
-		}
-
-		decryptedID, err := xsecrets.RSADecryptBytes(record.EncryptedPayload, rsaKey)
-		if err != nil {
-			return nil, fmt.Errorf("decrypt redis[%s] failed: %w", hash, err)
+			return nil, fmt.Errorf("redis error for hash %s: %w", hash_xid, err)
 		}
 
 		// Replace all occurrences (just in case)

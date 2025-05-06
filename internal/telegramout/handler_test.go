@@ -2,13 +2,16 @@ package telegramout_test
 
 import (
 	"context"
-	"crypto/rand"
+	"encoding/base64"
+	"crypto/x509"
 	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/json"
+	"database/sql"
 	"fmt"
 	"testing"
 	"time"
+	"os"
 
 	"github.com/eugene-ruby/xconnect/redisstore"
 	"github.com/eugene-ruby/xencryptor/xsecrets"
@@ -18,24 +21,50 @@ import (
 	"murmapp.caster/internal/config"
 	"murmapp.caster/internal/telegramout"
 	casterpb "murmapp.caster/proto"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-func Test_HandleMessageOut_success_with_XID(t *testing.T) {
-	ctx := context.Background()
-
-	// 🔐 Generate RSA key pair
-	privKey, err := rsa.GenerateKey(rand.Reader, 2048)
+func setupTestDB(t *testing.T, pgDNS string) *sql.DB {
+	db, err := sql.Open("pgx", pgDNS)
 	require.NoError(t, err)
-	pubKey := &privKey.PublicKey
+	t.Cleanup(func() { _ = db.Close() })
+
+	_, err = db.Exec(`DELETE FROM telegram_id_map`)
+	require.NoError(t, err)
+
+	return db
+}
+
+func setupTestHandler(t *testing.T) *telegramout.OutboundHandler {
+	cfg, _ := config.LoadConfig()
+	
+	// Mock Redis
+	mock := redisstore.NewMockClient()
+	store := redisstore.New(mock)
+
+	db := setupTestDB(t, cfg.PostgreSQL.DSN)
+	handler := &telegramout.OutboundHandler{
+		DB: db,
+		Config: cfg,
+		Store: store,
+	}
+
+	return handler
+}
+
+
+func Test_HandleMessageOut_success_with_XID(t *testing.T) {
+	handler := setupTestHandler(t)
+	ctx := context.Background()
 
 	// 📦 Telegram ID to encrypt
 	telegramID := []byte("123456789")
 
 	// 🔒 Encrypt telegram ID
-	encryptedBytes, err := xsecrets.RSAEncryptBytes(pubKey, telegramID)
+	encryptedBytes, err := xsecrets.EncryptBytesWithKey(telegramID, handler.Config.Encryption.TelegramIdEncryptionKey)
 	require.NoError(t, err)
 
-	// 📦 Marshal proto.TelegramIDStore
 	storeProto := &casterpb.TelegramIdStore{
 		Version:          "v1",
 		EncryptedPayload: encryptedBytes,
@@ -44,27 +73,22 @@ func Test_HandleMessageOut_success_with_XID(t *testing.T) {
 	require.NoError(t, err)
 
 	// 🧂 Hash telegram ID with salt
-	salt := "salt123"
+	salt := handler.Config.Encryption.SecretSalt
 	h := sha256.New()
 	h.Write(telegramID)
-	h.Write([]byte(salt))
+	h.Write(salt)
 	hash := h.Sum(nil)
 	hashHex := fmt.Sprintf("%x", hash)
 
-	// 🧠 Mock Redis
-	mock := redisstore.NewMockClient()
-	store := redisstore.New(mock)
-	err = store.Set(ctx, hashHex, string(rawStore), time.Minute)
+	err = handler.Store.Set(ctx, hashHex, string(rawStore), time.Minute)
 	require.NoError(t, err)
 
 	// 📄 Payload with __XID:{hash}
 	payload := `{"chat_id":"__XID:` + hashHex + `__","text":"hello"}`
-	payloadKey := []byte("12345678901234567890123456789012")
-	secretBotKey := []byte("02345678901234567890123456789012")
-
-	encAPI, err := xsecrets.EncryptBytesWithKey([]byte("test-api-key"), secretBotKey)
+	
+	encAPI, err := xsecrets.EncryptBytesWithKey([]byte("test-api-key"), handler.Config.Encryption.SecretBotEncryptionKey)
 	require.NoError(t, err)
-	encPayload, err := xsecrets.EncryptBytesWithKey([]byte(payload), payloadKey)
+	encPayload, err := xsecrets.EncryptBytesWithKey([]byte(payload), handler.Config.Encryption.PayloadEncryptionKey)
 	require.NoError(t, err)
 
 	// 📦 Create SendMessageRequest proto
@@ -84,32 +108,18 @@ func Test_HandleMessageOut_success_with_XID(t *testing.T) {
 	})
 	defer telegramout.ResetSendToTelegram()
 
-	// 🏗 Build handler
-	handler := &telegramout.OutboundHandler{
-		Config: &config.Config{
-			TelegramAPI: "https://api.telegram.org/bot",
-			Encryption: config.EncryptionConfig{
-				SecretSalt: []byte(salt),
-				PayloadEncryptionKey:    payloadKey,
-				PrivateRSAEncryptionKey: privKey,
-				SecretBotEncryptionKey: secretBotKey,
-			},
-		},
-		Store: store,
-	}
-
 	// 🚀 Call handler
 	telegramout.HandleMessageOut(data, handler)
 
 	// ✅ Assertions
 	require.NotNil(t, capturedReq)
 	require.Equal(t, "test-api-key", capturedReq.ApiKey)
-	require.Equal(t, "https://api.telegram.org/bot", capturedReq.TelegramAPI)
+	require.Equal(t, "https://api.example.com", capturedReq.TelegramAPI)
 	require.Equal(t, "sendMessage", capturedReq.Endpoint)
 
 	var parsed map[string]any
 	err = json.Unmarshal(capturedReq.Payload, &parsed)
 	require.NoError(t, err)
-	require.Equal(t, "123456789", parsed["chat_id"])
+	require.Equal(t, string(telegramID), parsed["chat_id"])
 	require.Equal(t, "hello", parsed["text"])
 }

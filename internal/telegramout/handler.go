@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"time"
+	"database/sql"
 
 	"github.com/eugene-ruby/xconnect/redisstore"
 	"github.com/eugene-ruby/xencryptor/xsecrets"
@@ -16,14 +17,14 @@ import (
 type OutboundHandler struct {
 	Config *config.Config
 	Store  *redisstore.Store
+	DB *sql.DB
 }
 
 // HandleEncryptedRequest handles a raw protobuf-encoded and encrypted SendMessageRequest.
 func HandleMessageOut(body []byte, outboundHandler *OutboundHandler) {
 	secretBotEncryptionKey := outboundHandler.Config.Encryption.SecretBotEncryptionKey
 	payloadEncryptionKey := outboundHandler.Config.Encryption.PayloadEncryptionKey
-	privateRSAEncryptionKey := outboundHandler.Config.Encryption.PrivateRSAEncryptionKey
-	store := outboundHandler.Store
+	telegramIdEncryptionKey := outboundHandler.Config.Encryption.TelegramIdEncryptionKey
 	telegramAPI := outboundHandler.Config.TelegramAPI
 
 	var req casterpb.SendMessageRequest
@@ -49,7 +50,13 @@ func HandleMessageOut(body []byte, outboundHandler *OutboundHandler) {
 		return
 	}
 
-	payloadWithID, err := ReplaceXIDPlaceholders(payload, store, privateRSAEncryptionKey)
+	outboundxID := &XIDPlaceholders{
+		Redis: outboundHandler.Store,
+		TelegramIdEncryptionKey: telegramIdEncryptionKey,
+		TTL: 10*time.Minute,
+	}
+
+	payloadWithID, err := ReplaceXIDPlaceholders(payload, outboundxID)
 	if err != nil {
 		log.Printf("[caster] ❌ failed to replace telegram_id: %v", err)
 		return

@@ -43,10 +43,10 @@ type EncryptionConfig struct {
 	SecretSalt                 []byte
 	MasterKeyBytes             []byte
 	PayloadEncryptionKeyStr    string
-	SecretBotEncryptionKeyStr  string
 	PrivateRSAEncryptionKeyStr string
 	PayloadEncryptionKey       []byte
 	SecretBotEncryptionKey     []byte
+	TelegramIdEncryptionKey    []byte
 	PrivateRSAEncryptionKey    *rsa.PrivateKey
 }
 
@@ -77,7 +77,8 @@ func LoadConfig() (*Config, error) {
 			SecretSaltStr:              os.Getenv("SECRET_SALT"),
 			PayloadEncryptionKeyStr:    os.Getenv("PAYLOAD_ENCRYPTION_KEY"),
 			PrivateRSAEncryptionKeyStr: os.Getenv("ENCRYPTED_PRIVATE_KEY"),
-			SecretBotEncryptionKey: xsecrets.DeriveKey(MasterKeyBytes(), "bot"),
+			SecretBotEncryptionKey:     xsecrets.DeriveKey(MasterKeyBytes(), "bot"),
+			TelegramIdEncryptionKey:    xsecrets.DeriveKey(MasterKeyBytes(), "telegram_id"),
 		},
 	}
 

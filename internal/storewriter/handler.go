@@ -13,7 +13,7 @@ import (
 
 type Handler struct {
 	DB *sql.DB
-	MasterKey []byte
+	TelegramIdEncryptionKey []byte
 	PrivateKey *rsa.PrivateKey
 }
 
@@ -30,8 +30,7 @@ func HandleEncryptedID(body []byte, h *Handler) {
 		return
 	}
 
-	key := xsecrets.DeriveKey(h.MasterKey, "telegram_id")
-	encrypted_id, err := xsecrets.EncryptBase64WithKey(decrypt_id, key)
+	encrypted_id, err := xsecrets.EncryptBytesWithKey(decrypt_id, h.TelegramIdEncryptionKey)
 	if err != nil {
 		log.Printf("[storewriter] ❌ failed to encrypted telegram_id: %v", err)
 		return

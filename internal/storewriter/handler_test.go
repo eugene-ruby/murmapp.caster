@@ -38,7 +38,7 @@ func setupTestHandler(t *testing.T) *storewriter.Handler {
 	db := setupTestDB(t)
 	handler := &storewriter.Handler{
 		DB: db,
-		MasterKey: cfg.Encryption.MasterKeyBytes,
+		TelegramIdEncryptionKey: cfg.Encryption.TelegramIdEncryptionKey,
 		PrivateKey: cfg.Encryption.PrivateRSAEncryptionKey,
 	}
 
@@ -62,10 +62,12 @@ func Test_HandleEncryptedID_insert_success(t *testing.T) {
 
 	storewriter.HandleEncryptedID(raw, handler)
 
-	var count int
-	err = db.QueryRow(`SELECT COUNT(*) FROM telegram_id_map WHERE telegram_xid = $1`, msg.TelegramXid).Scan(&count)
+	var data []byte
+	err = db.QueryRow(`SELECT encrypted_id FROM telegram_id_map WHERE telegram_xid = $1`, msg.TelegramXid).Scan(&data)
 	require.NoError(t, err)
-	require.Equal(t, 1, count)
+	original_id, err := xsecrets.DecryptBytesWithKey(data, handler.TelegramIdEncryptionKey)
+	require.NoError(t, err)
+	require.Equal(t, []byte(telegram_id), original_id)
 }
 
 func Test_HandleEncryptedID_duplicate(t *testing.T) {
@@ -99,7 +101,7 @@ func Test_HandleEncryptedID_duplicate(t *testing.T) {
 
 func Test_HandleEncryptedID_invalid_proto(t *testing.T) {
 	db := setupTestDB(t)
-	handler := &storewriter.Handler{DB: db}
+	handler := setupTestHandler(t)
 
 	storewriter.HandleEncryptedID([]byte("not a proto"), handler)
 

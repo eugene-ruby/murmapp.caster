@@ -80,6 +80,9 @@ func Test_HandleRegistration_success(t *testing.T) {
 	require.Equal(t, botID, resp.BotId)
 	require.NotEmpty(t, resp.EncryptedApiKeyBot)
 	require.NotEmpty(t, resp.WebhookId)
+
+	original_bot_key, _ := xsecrets.DecryptBytesWithKey(resp.EncryptedApiKeyBot, handler.Config.Encryption.SecretBotEncryptionKey)
+	require.Equal(t, original_bot_key, []byte(apiKey))
 }
 
 func Test_HandleRegistration_invalid_protobuf(t *testing.T) {

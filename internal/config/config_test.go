@@ -35,6 +35,7 @@ func TestLoadConfig_Success(t *testing.T) {
 	os.Setenv("ENCRYPTED_PRIVATE_KEY", cipherText)
 
 	secretBotKey := xsecrets.DeriveKey([]byte(masterEncryptionKey), "bot")
+	telegramIdKey := xsecrets.DeriveKey([]byte(masterEncryptionKey), "telegram_id")
 
 	cfg, err := LoadConfig()
 	require.NoError(t, err)
@@ -45,6 +46,7 @@ func TestLoadConfig_Success(t *testing.T) {
 	require.Equal(t, "amqp://guest:guest@localhost:5672/", cfg.RabbitMQ.URL)
 	require.Equal(t, []byte(payloadKey), cfg.Encryption.PayloadEncryptionKey)
 	require.Equal(t, secretBotKey, cfg.Encryption.SecretBotEncryptionKey)
+	require.Equal(t, telegramIdKey, cfg.Encryption.TelegramIdEncryptionKey)
 	require.Equal(t, []byte("secretsalt123456"), cfg.Encryption.SecretSalt)
 }
 

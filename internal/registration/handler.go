@@ -55,9 +55,8 @@ var HandleRegistration = func(body []byte, outboundHandler *OutboundHandler) {
 func registeredPush(botID, webhookID string, decryptApiKey []byte, outboundHandler *OutboundHandler) error {
 	channel := outboundHandler.Channel
 	secretBotEncryptionKey := outboundHandler.Config.Encryption.SecretBotEncryptionKey
-	masterBotKey := xsecrets.DeriveKey(secretBotEncryptionKey, "bot")
 
-	encryptedApiKeyBot, err := xsecrets.EncryptBytesWithKey(decryptApiKey, masterBotKey)
+	encryptedApiKeyBot, err := xsecrets.EncryptBytesWithKey(decryptApiKey, secretBotEncryptionKey)
 	if err != nil {
 		log.Printf("[caster] ❌ encryption failed: %v", err)
 		return err

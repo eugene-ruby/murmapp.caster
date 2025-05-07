@@ -33,6 +33,7 @@ jobs:
           go-version: '1.22'
 
       - name: Build binary
+        working-directory: ${{ github.workspace }}
         env:
           GOPRIVATE: github.com/eugene-ruby/murmapp.caster
         run: |

@@ -1,4 +1,20 @@
-# 📩 murmapp.caster v0.1.1
+# 📩 About murmapp.caster v0.1.X
+
+Вот более техническая версия плашки, отражающая архитектуру и назначение:
+
+```bash
+╭────────────────────────────────────────────────╮
+│     murmapp.caster: trusted boundary for       │
+│     decrypting & dispatching Telegram ops      │
+╰────────────────────────────────────────────────╯
+       ↳ RSA/AES-secured, event-driven, minimal
+```
+
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/eugene-ruby/murmapp.caster)](https://goreportcard.com/report/github.com/eugene-ruby/murmapp.caster)
+[![Build Status](https://github.com/eugene-ruby/murmapp.caster/actions/workflows/ci.yml/badge.svg)](https://github.com/eugene-ruby/murmapp.caster/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 
 **murmapp.caster** is a secure and minimal microservice in the Murmapp ecosystem responsible for sending encrypted messages and registering webhooks with the Telegram Bot API.
 

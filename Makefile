@@ -2,7 +2,7 @@ include .env_test
 export
 
 # Fully qualified Go symbol (matches -ldflags -X path)
-MASTER_KEY_VAR := github.com/eugene-ruby/murmapp.caster/internal/config.MasterEncryptionKey
+MASTER_KEY_ VAR := github.com/eugene-ruby/murmapp.caster/internal/config.MasterEncryptionKey
 
 # Run tests with injected master key via -ldflags
 test:

@@ -1,0 +1,13 @@
+MASTER_KEY=test-master-key
+APP_PORT=3999
+WEB_HOOK_HOST=https://example.com
+TELEGRAM_API_URL=https://api.example.com
+
+POSTGRES_DSN=postgres://murmapp_caster_user:supersecretpassword@localhost:5432/murmapp_caster?sslmode=disable
+RABBITMQ_URL=amqp://guest:guest@localhost:5672
+REDIS_URL=redis://localhost:6379
+
+SECRET_SALT=********************************
+PAYLOAD_ENCRYPTION_KEY=********************************
+ENCRYPTED_PRIVATE_KEY=************************************************************************************************************************************************************************************************
+PUBLIC_KEY_RAW_BASE64=****************************************************************************************************************************************************************************************************************************************************************

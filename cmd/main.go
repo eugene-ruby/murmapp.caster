@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"murmapp.caster/internal"
+	"murmappcaster/internal"
 )
 
 func main() {

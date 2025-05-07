@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"murmapp.caster/internal/config"
-	"murmapp.caster/internal/app"
-	"murmapp.caster/internal/server"
+	"murmappcaster/internal/app"
+	"murmappcaster/internal/config"
+	"murmappcaster/internal/server"
 )
 
 func Run() error {

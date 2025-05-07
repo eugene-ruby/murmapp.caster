@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package caster;
 
-option go_package = "murmapp.caster/proto;casterpb";
+option go_package = "murmappcaster/proto;casterpb";
 
 message RegisterWebhookRequest {
   string bot_id = 1;

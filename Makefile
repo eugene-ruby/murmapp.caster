@@ -2,7 +2,7 @@ include .env_test
 export
 
 # Fully qualified Go symbol (matches -ldflags -X path)
-MASTER_KEY_VAR := murmapp.caster/internal/config.MasterEncryptionKey
+MASTER_KEY_VAR := murmappcaster/internal/config.MasterEncryptionKey
 
 # Run tests with injected master key via -ldflags
 test:

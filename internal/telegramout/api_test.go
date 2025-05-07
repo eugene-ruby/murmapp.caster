@@ -9,8 +9,9 @@ import (
 	"testing"
 	"time"
 
+	"murmappcaster/internal/telegramout"
+
 	"github.com/stretchr/testify/require"
-	"murmapp.caster/internal/telegramout"
 )
 
 func Test_SendToTelegram_success(t *testing.T) {

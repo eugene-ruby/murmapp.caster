@@ -13,15 +13,16 @@ jobs:
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
       SSH_KEY: ${{ secrets.SSH_KEY }}
-      TELEGRAM_API_URL: ${{ secrets.TELEGRAM_API_URL }}
-      RABBITMQ_URL: ${{ secrets.RABBITMQ_URL }}
-      SECRET_SALT: ${{ secrets.SECRET_SALT }}
-      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
-      BOT_ENCRYPTION_KEY: ${{ secrets.BOT_ENCRYPTION_KEY }}
-      TELEGRAM_ID_ENCRYPTION_KEY: ${{ secrets.TELEGRAM_ID_ENCRYPTION_KEY }}
-      WEB_HOOK_HOST: ${{ secrets.WEB_HOOK_HOST }}
       APP_PORT: ${{ secrets.APP_PORT }}
-
+      TELEGRAM_API_URL: ${{ secrets.TELEGRAM_API_URL }}
+      WEB_HOOK_HOST: ${{ secrets.WEB_HOOK_HOST }}
+      RABBITMQ_URL: ${{ secrets.RABBITMQ_URL }}
+      REDIS_URL: ${{ secrets.REDIS_URL }}
+      POSTGRES_DSN: ${{ secrets.POSTGRES_DSN }}
+      SECRET_SALT: ${{ secrets.SECRET_SALT }}
+      PAYLOAD_ENCRYPTION_KEY: ${{ secrets.PAYLOAD_ENCRYPTION_KEY }}
+      ENCRYPTED_PRIVATE_KEY: ${{ secrets.ENCRYPTED_PRIVATE_KEY }}
+      PUBLIC_KEY_RAW_BASE64: ${{ secrets.PUBLIC_KEY_RAW_BASE64 }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -50,19 +51,22 @@ jobs:
           host: ${{ env.SSH_HOST }}
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
-          envs: SECRET_SALT,TELEGRAM_API_URL,RABBITMQ_URL,WEB_HOOK_HOST,APP_PORT,BOT_ENCRYPTION_KEY,TELEGRAM_ID_ENCRYPTION_KEY,ENCRYPTION_KEY
+          envs: APP_PORT,WEB_HOOK_HOST,TELEGRAM_API_URL,RABBITMQ_URL,REDIS_URL,POSTGRES_DSN,SECRET_SALT,PAYLOAD_ENCRYPTION_KEY,ENCRYPTED_PRIVATE_KEY,PUBLIC_KEY_RAW_BASE64
           script: |
+            set -eu
             cd ~/murmapp/murmapp.caster
 
             cat <<EOF > .env
-            SECRET_SALT=$SECRET_SALT
-            TELEGRAM_API_URL=$TELEGRAM_API_URL
-            BOT_ENCRYPTION_KEY=$BOT_ENCRYPTION_KEY
-            ENCRYPTION_KEY=$ENCRYPTION_KEY
-            TELEGRAM_ID_ENCRYPTION_KEY=$TELEGRAM_ID_ENCRYPTION_KEY
-            RABBITMQ_URL=$RABBITMQ_URL
-            WEB_HOOK_HOST=$WEB_HOOK_HOST
             APP_PORT=$APP_PORT
+            TELEGRAM_API_URL=$TELEGRAM_API_URL
+            WEB_HOOK_HOST=$WEB_HOOK_HOST
+            RABBITMQ_URL=$RABBITMQ_URL
+            REDIS_URL=$REDIS_URL
+            POSTGRES_DSN=$POSTGRES_DSN
+            PAYLOAD_ENCRYPTION_KEY=$PAYLOAD_ENCRYPTION_KEY
+            SECRET_SALT=$SECRET_SALT
+            ENCRYPTED_PRIVATE_KEY=$ENCRYPTED_PRIVATE_KEY
+            PUBLIC_KEY_RAW_BASE64=$PUBLIC_KEY_RAW_BASE64
             EOF
 
             sudo systemctl restart murmapp-caster.service

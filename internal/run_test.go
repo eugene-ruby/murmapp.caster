@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"murmappcaster/internal"
+	"murmapp.caster/internal"
 
 	"github.com/eugene-ruby/xencryptor/xsecrets"
 	"github.com/stretchr/testify/require"

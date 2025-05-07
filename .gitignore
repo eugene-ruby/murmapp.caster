@@ -1,6 +1,5 @@
 .idea
 .env*
-app
 .DS_Store
 /tmp
 casterapp

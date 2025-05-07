@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	casterpb "murmappcaster/proto"
+	casterpb "murmapp.caster/proto"
 
 	"github.com/eugene-ruby/xconnect/redisstore"
 	"github.com/eugene-ruby/xencryptor/xsecrets"

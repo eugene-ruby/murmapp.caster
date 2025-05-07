@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"murmappcaster/internal/config"
-	casterpb "murmappcaster/proto"
+	"murmapp.caster/internal/config"
+	casterpb "murmapp.caster/proto"
 
 	"github.com/eugene-ruby/xconnect/rabbitmq"
 	"github.com/eugene-ruby/xencryptor/xsecrets"

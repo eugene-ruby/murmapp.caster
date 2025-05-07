@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"murmappcaster/internal/config"
-	"murmappcaster/internal/storewriter"
-	casterpb "murmappcaster/proto"
+	"murmapp.caster/internal/config"
+	"murmapp.caster/internal/storewriter"
+	casterpb "murmapp.caster/proto"
 
 	"github.com/eugene-ruby/xencryptor/xsecrets"
 	"github.com/stretchr/testify/require"

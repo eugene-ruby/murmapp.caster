@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"murmappcaster/internal/telegramout"
+	"murmapp.caster/internal/telegramout"
 
 	"github.com/stretchr/testify/require"
 )

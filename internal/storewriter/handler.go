@@ -6,7 +6,7 @@ import (
 	"database/sql"
 	"log"
 
-	casterpb "murmappcaster/proto"
+	casterpb "murmapp.caster/proto"
 
 	"github.com/eugene-ruby/xencryptor/xsecrets"
 	"google.golang.org/protobuf/proto"

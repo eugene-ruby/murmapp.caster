@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/eugene-ruby/murmapp.caster/internal/telegramout"
 	"github.com/stretchr/testify/require"
+	"murmapp.caster/internal/telegramout"
 )
 
 func Test_SendToTelegram_success(t *testing.T) {

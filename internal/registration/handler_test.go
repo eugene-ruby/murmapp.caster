@@ -12,9 +12,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/eugene-ruby/murmapp.caster/internal/config"
-	"github.com/eugene-ruby/murmapp.caster/internal/registration"
-	casterpb "github.com/eugene-ruby/murmapp.caster/proto"
+	"murmapp.caster/internal/config"
+	"murmapp.caster/internal/registration"
+	casterpb "murmapp.caster/proto"
 )
 
 func Test_HandleRegistration_success(t *testing.T) {

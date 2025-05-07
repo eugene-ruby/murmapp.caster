@@ -6,9 +6,9 @@ import (
 	"database/sql"
 	"log"
 
-	casterpb "github.com/eugene-ruby/murmapp.caster/proto"
 	"github.com/eugene-ruby/xencryptor/xsecrets"
 	"google.golang.org/protobuf/proto"
+	casterpb "murmapp.caster/proto"
 )
 
 type Handler struct {

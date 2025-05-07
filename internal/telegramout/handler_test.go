@@ -14,9 +14,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/eugene-ruby/murmapp.caster/internal/config"
-	"github.com/eugene-ruby/murmapp.caster/internal/telegramout"
-	casterpb "github.com/eugene-ruby/murmapp.caster/proto"
+	"murmapp.caster/internal/config"
+	"murmapp.caster/internal/telegramout"
+	casterpb "murmapp.caster/proto"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )

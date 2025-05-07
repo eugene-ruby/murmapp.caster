@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/eugene-ruby/murmapp.caster/internal"
+	"murmapp.caster/internal"
 )
 
 func main() {

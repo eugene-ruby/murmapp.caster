@@ -9,12 +9,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/eugene-ruby/murmapp.caster/internal/config"
-	"github.com/eugene-ruby/murmapp.caster/internal/storewriter"
-	casterpb "github.com/eugene-ruby/murmapp.caster/proto"
 	"github.com/eugene-ruby/xencryptor/xsecrets"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
+	"murmapp.caster/internal/config"
+	"murmapp.caster/internal/storewriter"
+	casterpb "murmapp.caster/proto"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )

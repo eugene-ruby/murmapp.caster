@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/eugene-ruby/murmapp.caster/internal/app"
-	"github.com/eugene-ruby/murmapp.caster/internal/config"
-	"github.com/eugene-ruby/murmapp.caster/internal/server"
+	"murmapp.caster/internal/app"
+	"murmapp.caster/internal/config"
+	"murmapp.caster/internal/server"
 )
 
 func Run() error {

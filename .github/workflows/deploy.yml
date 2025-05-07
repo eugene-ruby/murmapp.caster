@@ -36,10 +36,12 @@ jobs:
         working-directory: ${{ github.workspace }}
         env:
           GOPRIVATE: github.com/eugene-ruby/murmapp.caster
+          GONOSUMDB: github.com/eugene-ruby/murmapp.caster
+          GO111MODULE: on
         run: |
-          echo "PWD: $(pwd)"
-          echo "go.mod exists? $(test -f go.mod && echo yes || echo no)"
-          go build -ldflags "-X=github.com/eugene-ruby/murmapp.caster/internal/config.MasterEncryptionKey=${{ secrets.MASTER_SECRET_KEY }}" \
+          go env
+          go mod tidy
+          go build -mod=mod  -ldflags "-X=github.com/eugene-ruby/murmapp.caster/internal/config.MasterEncryptionKey=${{ secrets.MASTER_SECRET_KEY }}" \
           -o app ./cmd/main.go
       - name: Upload binary to server
         uses: appleboy/scp-action@v0.1.4

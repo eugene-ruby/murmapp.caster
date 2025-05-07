@@ -2,6 +2,10 @@ module murmappcaster
 
 go 1.24.1
 
+replace (
+    murmappcaster => ./
+)
+
 require (
 	github.com/eugene-ruby/xconnect v0.3.3
 	github.com/eugene-ruby/xencryptor v0.2.3

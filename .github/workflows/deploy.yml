@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -35,13 +37,12 @@ jobs:
           cache: true
       - name: Prepare
         run: |
-          echo "Project structure:"
-          ls -la
-          echo "Go module info:"
-          go list -m all
+          go mod tidy
+          go mod download
       - name: Build binary
         run: |
-          GOWORK=off go build -ldflags "-X=murmappcaster/internal/config.MasterEncryptionKey=${{ secrets.MASTER_SECRET_KEY }}" \
+          go list -m all
+          go build -mod=mod -v -ldflags "-X=murmappcaster/internal/config.MasterEncryptionKey=${{ secrets.MASTER_SECRET_KEY }}" \
           -o app ./cmd/main.go
       - name: Upload binary to server
         uses: appleboy/scp-action@v0.1.4

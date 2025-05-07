@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"time"
 
+	casterpb "github.com/eugene-ruby/murmapp.caster/proto"
 	"github.com/eugene-ruby/xconnect/redisstore"
 	"github.com/eugene-ruby/xencryptor/xsecrets"
 	"github.com/redis/go-redis/v9"
 	"google.golang.org/protobuf/proto"
-	casterpb "murmapp.caster/proto"
 )
 
 type XIDResolver struct {

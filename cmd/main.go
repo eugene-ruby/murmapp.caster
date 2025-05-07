@@ -1,9 +1,9 @@
 package main
 
 import (
-    "log"
+	"log"
 
-    "murmapp.caster/internal"
+	"github.com/eugene-ruby/murmapp.caster/internal"
 )
 
 func main() {

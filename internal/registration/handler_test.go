@@ -12,9 +12,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 
-	"murmapp.caster/internal/config"
-	"murmapp.caster/internal/registration"
-	casterpb "murmapp.caster/proto"
+	"github.com/eugene-ruby/murmapp.caster/internal/config"
+	"github.com/eugene-ruby/murmapp.caster/internal/registration"
+	casterpb "github.com/eugene-ruby/murmapp.caster/proto"
 )
 
 func Test_HandleRegistration_success(t *testing.T) {
@@ -42,7 +42,7 @@ func Test_HandleRegistration_success(t *testing.T) {
 			TelegramAPI: fakeServer.URL,
 			WebhookHost: "https://example.com/webhook",
 			Encryption: config.EncryptionConfig{
-				SecretSalt: []byte("test_salt"),
+				SecretSalt:             []byte("test_salt"),
 				PayloadEncryptionKey:   payloadEncryptionKey,
 				SecretBotEncryptionKey: secretBotEncryptionKey,
 			},
@@ -93,13 +93,13 @@ func Test_HandleRegistration_invalid_protobuf(t *testing.T) {
 
 	// Set the minimum config
 	handler := &registration.OutboundHandler{
-    Config: &config.Config{
-        WebhookHost: "https://example.com",
-        Encryption: config.EncryptionConfig{
-            PayloadEncryptionKey: []byte("12345678901234567890123456789012"),
-        },
-    },
-    Channel: mocks.NewMockChannel(),
+		Config: &config.Config{
+			WebhookHost: "https://example.com",
+			Encryption: config.EncryptionConfig{
+				PayloadEncryptionKey: []byte("12345678901234567890123456789012"),
+			},
+		},
+		Channel: mocks.NewMockChannel(),
 	}
 
 	registration.HandleRegistration(invalidBody, handler)

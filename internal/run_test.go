@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/eugene-ruby/murmapp.caster/internal"
 	"github.com/eugene-ruby/xencryptor/xsecrets"
 	"github.com/stretchr/testify/require"
-	"murmapp.caster/internal"
 )
 
 func TestRun_HealthzOK(t *testing.T) {

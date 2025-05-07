@@ -2,22 +2,22 @@ package telegramout
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"log"
 	"time"
-	"database/sql"
 
+	"github.com/eugene-ruby/murmapp.caster/internal/config"
+	casterpb "github.com/eugene-ruby/murmapp.caster/proto"
 	"github.com/eugene-ruby/xconnect/redisstore"
 	"github.com/eugene-ruby/xencryptor/xsecrets"
 	"google.golang.org/protobuf/proto"
-	"murmapp.caster/internal/config"
-	casterpb "murmapp.caster/proto"
 )
 
 type OutboundHandler struct {
 	Config *config.Config
 	Store  *redisstore.Store
-	DB *sql.DB
+	DB     *sql.DB
 }
 
 // HandleEncryptedRequest handles a raw protobuf-encoded and encrypted SendMessageRequest.
@@ -51,9 +51,9 @@ func HandleMessageOut(body []byte, outboundHandler *OutboundHandler) {
 	}
 
 	outboundxID := &XIDPlaceholders{
-		Redis: outboundHandler.Store,
+		Redis:                   outboundHandler.Store,
 		TelegramIdEncryptionKey: telegramIdEncryptionKey,
-		TTL: 10*time.Minute,
+		TTL:                     10 * time.Minute,
 	}
 
 	payloadWithID, err := ReplaceXIDPlaceholders(payload, outboundxID)

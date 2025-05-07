@@ -1,4 +1,4 @@
-module murmapp.caster
+module github.com/eugene-ruby/murmapp.caster
 
 go 1.24.1
 

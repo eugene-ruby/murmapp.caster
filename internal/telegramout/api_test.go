@@ -2,15 +2,15 @@ package telegramout_test
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
-	"fmt"
 
+	"github.com/eugene-ruby/murmapp.caster/internal/telegramout"
 	"github.com/stretchr/testify/require"
-	"murmapp.caster/internal/telegramout"
 )
 
 func Test_SendToTelegram_success(t *testing.T) {

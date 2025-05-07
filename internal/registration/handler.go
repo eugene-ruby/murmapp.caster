@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"log"
 
-	"google.golang.org/protobuf/proto"
-	casterpb "murmapp.caster/proto"
+	"github.com/eugene-ruby/murmapp.caster/internal/config"
+	casterpb "github.com/eugene-ruby/murmapp.caster/proto"
 	"github.com/eugene-ruby/xconnect/rabbitmq"
-	"murmapp.caster/internal/config"
 	"github.com/eugene-ruby/xencryptor/xsecrets"
+	"google.golang.org/protobuf/proto"
 )
 
 type OutboundHandler struct {
-	Config *config.Config
-	Channel  rabbitmq.Channel
+	Config  *config.Config
+	Channel rabbitmq.Channel
 }
 
 var HandleRegistration = func(body []byte, outboundHandler *OutboundHandler) {

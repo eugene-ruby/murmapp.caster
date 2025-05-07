@@ -2,19 +2,19 @@ package storewriter
 
 import (
 	"context"
+	"crypto/rsa"
 	"database/sql"
 	"log"
-	"crypto/rsa"
 
+	casterpb "github.com/eugene-ruby/murmapp.caster/proto"
 	"github.com/eugene-ruby/xencryptor/xsecrets"
 	"google.golang.org/protobuf/proto"
-	casterpb "murmapp.caster/proto"
 )
 
 type Handler struct {
-	DB *sql.DB
+	DB                      *sql.DB
 	TelegramIdEncryptionKey []byte
-	PrivateKey *rsa.PrivateKey
+	PrivateKey              *rsa.PrivateKey
 }
 
 func HandleEncryptedID(body []byte, h *Handler) {

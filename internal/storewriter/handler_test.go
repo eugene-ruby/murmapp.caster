@@ -1,20 +1,20 @@
 package storewriter_test
 
 import (
-	"encoding/base64"
 	"crypto/rsa"
 	"crypto/x509"
 	"database/sql"
+	"encoding/base64"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/eugene-ruby/murmapp.caster/internal/config"
+	"github.com/eugene-ruby/murmapp.caster/internal/storewriter"
+	casterpb "github.com/eugene-ruby/murmapp.caster/proto"
 	"github.com/eugene-ruby/xencryptor/xsecrets"
-	"murmapp.caster/internal/config"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
-	"murmapp.caster/internal/storewriter"
-	casterpb "murmapp.caster/proto"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -35,9 +35,9 @@ func setupTestHandler(t *testing.T) *storewriter.Handler {
 
 	db := setupTestDB(t, cfg.PostgreSQL.DSN)
 	handler := &storewriter.Handler{
-		DB: db,
+		DB:                      db,
 		TelegramIdEncryptionKey: cfg.Encryption.TelegramIdEncryptionKey,
-		PrivateKey: cfg.Encryption.PrivateRSAEncryptionKey,
+		PrivateKey:              cfg.Encryption.PrivateRSAEncryptionKey,
 	}
 
 	return handler

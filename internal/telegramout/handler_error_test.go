@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 
-	"murmapp.caster/internal/config"
-	"murmapp.caster/internal/telegramout"
-	casterpb "murmapp.caster/proto"
+	"github.com/eugene-ruby/murmapp.caster/internal/config"
+	"github.com/eugene-ruby/murmapp.caster/internal/telegramout"
+	casterpb "github.com/eugene-ruby/murmapp.caster/proto"
 )
 
 // ❌ proto.Unmarshal should fail
@@ -71,8 +71,8 @@ func Test_HandleMessageOut_missing_xid_in_redis(t *testing.T) {
 	handler := &telegramout.OutboundHandler{
 		Config: &config.Config{
 			Encryption: config.EncryptionConfig{
-				SecretSalt: []byte("salt123"),
-				PayloadEncryptionKey: payloadKey,
+				SecretSalt:             []byte("salt123"),
+				PayloadEncryptionKey:   payloadKey,
 				SecretBotEncryptionKey: secretBotKey,
 			},
 		},

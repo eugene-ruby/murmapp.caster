@@ -3,8 +3,8 @@ package telegramout_test
 import (
 	"context"
 	"crypto/sha256"
-	"encoding/json"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
@@ -14,9 +14,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 
-	"murmapp.caster/internal/config"
-	"murmapp.caster/internal/telegramout"
-	casterpb "murmapp.caster/proto"
+	"github.com/eugene-ruby/murmapp.caster/internal/config"
+	"github.com/eugene-ruby/murmapp.caster/internal/telegramout"
+	casterpb "github.com/eugene-ruby/murmapp.caster/proto"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -34,21 +34,20 @@ func setupTestDB(t *testing.T, pgDNS string) *sql.DB {
 
 func setupTestHandler(t *testing.T) *telegramout.OutboundHandler {
 	cfg, _ := config.LoadConfig()
-	
+
 	// Mock Redis
 	mock := redisstore.NewMockClient()
 	store := redisstore.New(mock)
 
 	db := setupTestDB(t, cfg.PostgreSQL.DSN)
 	handler := &telegramout.OutboundHandler{
-		DB: db,
+		DB:     db,
 		Config: cfg,
-		Store: store,
+		Store:  store,
 	}
 
 	return handler
 }
-
 
 func Test_HandleMessageOut_success_with_XID(t *testing.T) {
 	handler := setupTestHandler(t)
@@ -81,7 +80,7 @@ func Test_HandleMessageOut_success_with_XID(t *testing.T) {
 
 	// 📄 Payload with __XID:{hash}
 	payload := `{"chat_id":"__XID:` + hashHex + `__","text":"hello"}`
-	
+
 	encAPI, err := xsecrets.EncryptBytesWithKey([]byte("test-api-key"), handler.Config.Encryption.SecretBotEncryptionKey)
 	require.NoError(t, err)
 	encPayload, err := xsecrets.EncryptBytesWithKey([]byte(payload), handler.Config.Encryption.PayloadEncryptionKey)

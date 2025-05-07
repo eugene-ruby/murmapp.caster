@@ -24,6 +24,7 @@ jobs:
       ENCRYPTED_PRIVATE_KEY: ${{ secrets.ENCRYPTED_PRIVATE_KEY }}
       PUBLIC_KEY_RAW_BASE64: ${{ secrets.PUBLIC_KEY_RAW_BASE64 }}
       GO111MODULE: "on"
+      GOPRIVATE: "murmappcaster"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -35,10 +36,16 @@ jobs:
         with:
           go-version: '1.24.1'
           cache: true
+      - name: Verify project structure
+        run: |
+          ls -la internal/app/
+          test -f internal/app/app.go && echo "app.go exists" || echo "app.go missing"
+          find . -name "*.go" | grep -i app.go
+          cat internal/app/app.go | head -n 5
       - name: Prepare
         run: |
           go mod tidy
-          go mod download
+          go list -m all
       - name: Build binary
         run: |
           go list -m all

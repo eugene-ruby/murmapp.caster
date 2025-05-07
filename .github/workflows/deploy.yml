@@ -33,6 +33,8 @@ jobs:
           go-version: '1.22'
 
       - name: Build binary
+        env:
+          GOPRIVATE: github.com/eugene-ruby/murmapp.caster
         run: |
           go build -ldflags "-X=github.com/eugene-ruby/murmapp.caster/internal/config.MasterEncryptionKey=${{ secrets.MASTER_SECRET_KEY }}" \
           -o app ./cmd/main.go

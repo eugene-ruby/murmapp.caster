@@ -45,8 +45,7 @@ jobs:
       - name: Create .env_test file
         run: |
             cat <<EOF > .env_test
-            POSTGRES_DSN=postgres://murmapp_caster_user:supersecretpassword@localhost:5432/murmapp_caster?sslmode=disable
-            MASTER_KEY=test-master-key
+            ${{ secrets.CI_ENV_FILE }}
             EOF
       - name: Run tests
         run: |

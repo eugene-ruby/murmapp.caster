@@ -35,7 +35,7 @@ jobs:
       - name: Build binary
         run: |
           go mod tidy
-          go build -ldflags "-X=murmapp.caster/internal/config.MasterEncryptionKey=${{ secrets.MASTER_SECRET_KEY }}" \
+          go build -mod=mod -ldflags "-X=murmapp.caster/internal/config.MasterEncryptionKey=${{ secrets.MASTER_SECRET_KEY }}" \
           -o app ./cmd/main.go
       - name: Upload binary to server
         uses: appleboy/scp-action@v0.1.4

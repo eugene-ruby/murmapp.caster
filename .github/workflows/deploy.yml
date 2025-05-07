@@ -37,6 +37,8 @@ jobs:
         env:
           GOPRIVATE: github.com/eugene-ruby/murmapp.caster
         run: |
+          echo "PWD: $(pwd)"
+          echo "go.mod exists? $(test -f go.mod && echo yes || echo no)"
           go build -ldflags "-X=github.com/eugene-ruby/murmapp.caster/internal/config.MasterEncryptionKey=${{ secrets.MASTER_SECRET_KEY }}" \
           -o app ./cmd/main.go
       - name: Upload binary to server

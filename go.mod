@@ -1,4 +1,5 @@
 module murmapp.caster
+replace murmapp.caster => .
 
 go 1.24.1
 

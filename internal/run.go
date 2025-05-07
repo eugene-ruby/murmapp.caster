@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"murmapp.caster/internal/app"
 	"murmapp.caster/internal/config"
+	"murmapp.caster/internal/app"
 	"murmapp.caster/internal/server"
 )
 

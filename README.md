@@ -1,7 +1,5 @@
 # 📩 About murmapp.caster v0.1.X
 
-Вот более техническая версия плашки, отражающая архитектуру и назначение:
-
 ```bash
 ╭────────────────────────────────────────────────╮
 │     murmapp.caster: trusted boundary for       │
@@ -171,4 +169,4 @@ This is the first public stable release of `murmapp.caster`. Feedback and contri
 
 ## ™ License
 
-MIT or Murmapp Custom License (to be finalized)
+This project is licensed under the [MIT License](/LICENSE).

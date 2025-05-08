@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"murmapp.caster/internal/config"
+	"murmapp.caster/internal/rabbitmqinit"
 	"murmapp.caster/internal/registration"
 	"murmapp.caster/internal/storewriter"
 	"murmapp.caster/internal/telegramout"
@@ -89,6 +90,10 @@ func New(cfg config.Config) (*App, error) {
 
 	rmq, ch, err := initRabbitMQ(cfg)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := rabbitmqinit.DeclareExchanges(ch); err != nil {
 		return nil, err
 	}
 

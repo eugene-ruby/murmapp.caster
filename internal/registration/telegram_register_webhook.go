@@ -2,7 +2,7 @@ package registration
 
 import (
 	"math/rand"
-	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"bytes"
@@ -11,7 +11,7 @@ import (
 )
 
 func ComputeWebhookID(secretToken, secretSalt string) string {
-	h := sha1.New()
+	h := sha256.New()
 	h.Write([]byte(secretToken + secretSalt))
 	return hex.EncodeToString(h.Sum(nil))
 }

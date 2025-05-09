@@ -143,7 +143,7 @@ make build
                        ▼
        ┌─────────────────────────────────────────┐
        │ Generate:                               │
-       │   - webhook_id = SHA1(secret + salt)    │
+       │   - webhook_id = SHA256(secret + salt)  │
        │   - secret_token                        │
        │   - callback URL                        │
        └────────────┬────────────────────────────┘

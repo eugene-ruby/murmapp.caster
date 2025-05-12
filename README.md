@@ -13,6 +13,22 @@
 [![Build Status](https://github.com/eugene-ruby/murmapp.caster/actions/workflows/ci.yml/badge.svg)](https://github.com/eugene-ruby/murmapp.caster/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+---
+
+## 🔗 Part of the Murmapp Ecosystem
+
+Murmapp is composed of several specialized microservices:
+
+| Project           | Description                                                                 |
+|-------------------|-----------------------------------------------------------------------------|
+| [`murmapp.hook`](https://github.com/eugene-ruby/murmapp.hook)     | Secure Telegram webhook receiver with ID redaction and encryption |
+| [`murmapp.caster`](https://github.com/eugene-ruby/murmapp.caster) | Trusted dispatcher for decrypted message delivery to Telegram API |
+| [`murmapp.core`](https://github.com/eugene-ruby/murmapp.core)     | Domain logic and message orchestration layer                       |
+| [`murmapp.docs`](https://github.com/eugene-ruby/murmapp.docs)     | You are here — full technical documentation and architecture        |
+
+> All components are open-source and licensed under MIT.
+
+---
 
 **murmapp.caster** is a secure and minimal microservice in the Murmapp ecosystem responsible for sending encrypted messages and registering webhooks with the Telegram Bot API.
 
